@@ -100,7 +100,18 @@ contract FlightSuretyApp {
      * @dev Register a future flight for insuring.
      *
      */
-    function registerFlight() external pure {}
+    function registerFlight(
+        address airline,
+        string memory flight,
+        uint256 timestamp
+    ) external {
+        // Generate a unique key for storing the flight
+        bytes32 key = getFlightKey(airline, flight, timestamp);
+        flights[key].isRegistered = true;
+        flights[key].statusCode = STATUS_CODE_UNKNOWN;
+        flights[key].updatedTimestamp = timestamp;
+        flights[key].airline = airline;
+    }
 
     /**
      * @dev Called after oracle has updated flight status
@@ -111,7 +122,13 @@ contract FlightSuretyApp {
         string memory flight,
         uint256 timestamp,
         uint8 statusCode
-    ) internal pure {}
+    ) internal {
+        bytes32 key = getFlightKey(airline, flight, timestamp);
+        flights[key].statusCode = statusCode;
+        flights[key].updatedTimestamp = timestamp;
+
+
+    }
 
     // Generate a request for oracles to fetch flight information
     function fetchFlightStatus(
