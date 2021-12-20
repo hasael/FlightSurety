@@ -6,8 +6,9 @@ module.exports = function(deployer) {
 
     let firstAirline = '0xa73C0a824EAEF0D7DbB1C302c5Ee76C71f971074';
     deployer.deploy(FlightSuretyData)
-    .then(() => {
-        return deployer.deploy(FlightSuretyApp)
+    .then(dataContract => {
+        console.log('Data contract address' + dataContract.address);
+        return deployer.deploy(FlightSuretyApp, dataContract.address)
                 .then(() => {
                     let config = {
                         localhost: {

@@ -5,6 +5,7 @@ pragma solidity ^0.8.10;
 // More info: https://www.nccgroup.trust/us/about-us/newsroom-and-events/blog/2018/november/smart-contract-insecurity-bad-arithmetic/
 
 import "../node_modules/openzeppelin-solidity/contracts/utils/math/SafeMath.sol";
+import "./FlightSuretyDataContract.sol";
 
 /************************************************** */
 /* FlightSurety Smart Contract                      */
@@ -26,13 +27,7 @@ contract FlightSuretyApp {
 
     address private contractOwner; // Account used to deploy contract
 
-    struct Flight {
-        bool isRegistered;
-        uint8 statusCode;
-        uint256 updatedTimestamp;
-        address airline;
-    }
-    mapping(bytes32 => Flight) private flights;
+    FlightSuretyDataContract flightSuretyData;
 
     /********************************************************************************************/
     /*                                       FUNCTION MODIFIERS                                 */
@@ -68,8 +63,9 @@ contract FlightSuretyApp {
      * @dev Contract constructor
      *
      */
-    constructor() {
+    constructor(address dataContractAddress) {
         contractOwner = msg.sender;
+        flightSuretyData = FlightSuretyDataContract(dataContractAddress);
     }
 
     /********************************************************************************************/
@@ -113,12 +109,7 @@ contract FlightSuretyApp {
         string memory flight,
         uint256 timestamp
     ) external {
-        // Generate a unique key for storing the flight
-        bytes32 key = getFlightKey(airline, flight, timestamp);
-        flights[key].isRegistered = true;
-        flights[key].statusCode = STATUS_CODE_UNKNOWN;
-        flights[key].updatedTimestamp = timestamp;
-        flights[key].airline = airline;
+        flightSuretyData.addFlight(airline, flight, timestamp);
     }
 
     /**
@@ -131,9 +122,12 @@ contract FlightSuretyApp {
         uint256 timestamp,
         uint8 statusCode
     ) internal {
-        bytes32 key = getFlightKey(airline, flight, timestamp);
-        flights[key].statusCode = statusCode;
-        flights[key].updatedTimestamp = timestamp;
+        flightSuretyData.updateFlightStatus(
+            airline,
+            flight,
+            timestamp,
+            statusCode
+        );
     }
 
     // Generate a request for oracles to fetch flight information
@@ -151,7 +145,7 @@ contract FlightSuretyApp {
         oracleResponses[key].requester = msg.sender;
         oracleResponses[key].isOpen = true;
 
-        emit OracleRequest(index, airline, flight, timestamp);
+        emit OracleRequest(index, airline, 'abc', timestamp);
     }
 
     // region ORACLE MANAGEMENT
@@ -271,14 +265,6 @@ contract FlightSuretyApp {
         }
     }
 
-    function getFlightKey(
-        address airline,
-        string memory flight,
-        uint256 timestamp
-    ) internal pure returns (bytes32) {
-        return keccak256(abi.encodePacked(airline, flight, timestamp));
-    }
-
     // Returns array of three non-duplicating integers from 0-9
     function generateIndexes(address account)
         internal
@@ -322,7 +308,7 @@ contract FlightSuretyApp {
 
     // endregion
 
-      /**
+    /**
      * @dev Fallback function for funding smart contract.
      *
      */

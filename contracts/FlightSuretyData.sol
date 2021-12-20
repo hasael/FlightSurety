@@ -1,8 +1,9 @@
 pragma solidity ^0.8.10;
 
 import "../node_modules/openzeppelin-solidity/contracts/utils/math/SafeMath.sol";
+import "./FlightSuretyDataContract.sol";
 
-contract FlightSuretyData {
+contract FlightSuretyData is FlightSuretyDataContract {
     using SafeMath for uint256;
 
     /********************************************************************************************/
@@ -11,11 +12,20 @@ contract FlightSuretyData {
 
     address private contractOwner; // Account used to deploy contract
     bool private operational = true; // Blocks all state changes throughout the contract if false
-
+    // Flight status codees
+    uint8 private constant STATUS_CODE_UNKNOWN = 0;
     mapping(address => uint256) private usersBalance;
     mapping(address => uint256) private airlineFunds;
     //map of insurance keys to all users who have acquired it
     mapping(bytes32 => address[]) private insuranceUsers;
+    mapping(bytes32 => Flight) private flights;
+
+    struct Flight {
+        bool isRegistered;
+        uint8 statusCode;
+        uint256 updatedTimestamp;
+        address airline;
+    }
 
     struct Insurance {
         address airline;
@@ -91,6 +101,58 @@ contract FlightSuretyData {
      *
      */
     function registerAirline() external pure {}
+
+    /**
+     * @dev Register a future flight for insuring.
+     *
+     */
+    function addFlight(
+        address flightAirline,
+        string memory flight,
+        uint256 timestamp
+    ) external {
+        // Generate a unique key for storing the flight
+        bytes32 key = getFlightKey(flightAirline, flight, timestamp);
+        flights[key].isRegistered = true;
+        flights[key].statusCode = STATUS_CODE_UNKNOWN;
+        flights[key].updatedTimestamp = timestamp;
+        flights[key].airline = flightAirline;
+    }
+
+    function updateFlightStatus(
+        address airline,
+        string calldata flight,
+        uint256 timestamp,
+        uint8 statusCode
+    ) external {
+        bytes32 key = getFlightKey(airline, flight, timestamp);
+        flights[key].statusCode = statusCode;
+        flights[key].updatedTimestamp = timestamp;
+    }
+
+    function getFlight(
+        address airline,
+        string memory flight,
+        uint256 timestamp
+    )
+        external
+        view
+        returns (
+            address,
+            string memory,
+            uint8,
+            uint256
+        )
+    {
+        // Generate a unique key for storing the flight
+        bytes32 key = getFlightKey(airline, flight, timestamp);
+        return (
+            airline,
+            flight ,
+            flights[key].statusCode,
+            flights[key].updatedTimestamp
+        );
+    }
 
     /**
      * @dev Buy insurance for a flight

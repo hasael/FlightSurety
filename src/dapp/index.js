@@ -28,11 +28,10 @@ import './flightsurety.css';
 
         //Airline register flight
         DOM.elid('register-flight').addEventListener('click', () => {
-            let flight = DOM.elid('flight-number').value;
+            let flight = DOM.elid('flight-number-2').value;
             // Write transaction
             contract.registerFlight(flight, (error, result) => {
                 display('Flights', 'Register flight', [ { label: 'Fetch Flight Status', error: error, value: result.flight + ' ' + result.timestamp} ]);
-                console.log(error);
             });
         })
     
