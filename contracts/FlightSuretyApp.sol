@@ -85,6 +85,14 @@ contract FlightSuretyApp {
     /********************************************************************************************/
 
     /**
+     * @dev Buy insurance for a flight
+     *
+     */
+    function buy() external payable {}
+
+    function fund() public payable {}
+
+    /**
      * @dev Add an airline to the registration queue
      *
      */
@@ -126,8 +134,6 @@ contract FlightSuretyApp {
         bytes32 key = getFlightKey(airline, flight, timestamp);
         flights[key].statusCode = statusCode;
         flights[key].updatedTimestamp = timestamp;
-
-
     }
 
     // Generate a request for oracles to fetch flight information
@@ -315,4 +321,12 @@ contract FlightSuretyApp {
     }
 
     // endregion
+
+      /**
+     * @dev Fallback function for funding smart contract.
+     *
+     */
+    fallback() external payable {
+        fund();
+    }
 }

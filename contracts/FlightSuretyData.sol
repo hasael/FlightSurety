@@ -12,6 +12,16 @@ contract FlightSuretyData {
     address private contractOwner; // Account used to deploy contract
     bool private operational = true; // Blocks all state changes throughout the contract if false
 
+    mapping(address => uint256) private usersBalance;
+    mapping(address => uint256) private airlineFunds;
+    //map of insurance keys to all users who have acquired it
+    mapping(bytes32 => address[]) private insuranceUsers;
+
+    struct Insurance {
+        address airline;
+        string flight;
+    }
+
     /********************************************************************************************/
     /*                                       EVENT DEFINITIONS                                  */
     /********************************************************************************************/
@@ -86,12 +96,21 @@ contract FlightSuretyData {
      * @dev Buy insurance for a flight
      *
      */
-    function buy() external payable {}
+    function addUserInsurance(
+        string calldata flight,
+        address airline,
+        address user
+    ) external {
+        bytes32 key = getInsuranceKey(airline, flight);
+        insuranceUsers[key].push(user);
+    }
 
     /**
      *  @dev Credits payouts to insurees
      */
-    function creditInsurees() external pure {}
+    function creditInsurees(address user, uint256 credit) external {
+        usersBalance[user] += credit;
+    }
 
     /**
      *  @dev Transfers eligible payout funds to insuree
@@ -99,12 +118,13 @@ contract FlightSuretyData {
      */
     function pay() external pure {}
 
-    /**
-     * @dev Initial funding for the insurance. Unless there are too many delayed flights
-     *      resulting in insurance payouts, the contract should be self-sustaining
-     *
-     */
-    function fund() public payable {}
+    function addAirlineFunds(address airline, uint256 amount) external {
+        airlineFunds[airline] += amount;
+    }
+
+    function getAirlineFunds(address airline) external view returns (uint256) {
+        return airlineFunds[airline];
+    }
 
     function getFlightKey(
         address airline,
@@ -114,11 +134,11 @@ contract FlightSuretyData {
         return keccak256(abi.encodePacked(airline, flight, timestamp));
     }
 
-    /**
-     * @dev Fallback function for funding smart contract.
-     *
-     */
-    fallback() external payable {
-        fund();
+    function getInsuranceKey(address airline, string memory flight)
+        internal
+        pure
+        returns (bytes32)
+    {
+        return keccak256(abi.encodePacked(airline, flight));
     }
 }
