@@ -79,12 +79,30 @@ contract FlightSuretyApp {
     /********************************************************************************************/
     /*                                     SMART CONTRACT FUNCTIONS                             */
     /********************************************************************************************/
+    struct Flight {
+        bool isRegistered;
+        uint8 statusCode;
+        uint256 updatedTimestamp;
+        address airline;
+    }
 
     /**
      * @dev Buy insurance for a flight
      *
      */
-    function buy() external payable {}
+    function buyInsurance(address airline, string calldata flight) external payable {
+        require(msg.value > 0.1 ether, "Not enough funds");
+
+        (
+            address returnAirline,
+            string memory retFlight,
+            uint8 status,
+            uint256 timestamp
+        ) = flightSuretyData.getFlight(airline, flight);
+        require(returnAirline != address(0), "Flight not found");
+
+        flightSuretyData.addUserInsurance(flight, airline, msg.sender);
+    }
 
     function fund() public payable {}
 
@@ -106,7 +124,7 @@ contract FlightSuretyApp {
      */
     function registerFlight(
         address airline,
-        string memory flight,
+        string calldata flight,
         uint256 timestamp
     ) external {
         flightSuretyData.addFlight(airline, flight, timestamp);
@@ -128,6 +146,8 @@ contract FlightSuretyApp {
             timestamp,
             statusCode
         );
+
+        flightSuretyData.creditInsurees(airline, flight, 1);
     }
 
     // Generate a request for oracles to fetch flight information
@@ -145,7 +165,7 @@ contract FlightSuretyApp {
         oracleResponses[key].requester = msg.sender;
         oracleResponses[key].isOpen = true;
 
-        emit OracleRequest(index, airline, 'abc', timestamp);
+        emit OracleRequest(index, airline, "abc", timestamp);
     }
 
     // region ORACLE MANAGEMENT

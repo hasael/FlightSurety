@@ -73,4 +73,25 @@ export default class Contract {
             });
 
     }
+
+    buyInsurance(flight, callback) {
+        let self = this;
+        let payload = {
+            airline: self.airlines[0],
+            flight: flight,
+            timestamp: Math.floor(Date.now() / 1000)
+        }
+        self.flightSuretyApp.methods
+            .buyInsurance(payload.airline, payload.flight)
+            .estimateGas({ from: self.owner, value: this.web3.utils.toWei("0.11", "ether") }, (error, estimatedGas) => {
+                if (error)
+                    console.error('error estimating gas ' + error);
+                self.flightSuretyApp.methods
+                    .buyInsurance(payload.airline, payload.flight)
+                    .send({ from: self.owner, gas: estimatedGas, value: this.web3.utils.toWei("0.11", "ether") }, (error, result) => {
+                        callback(error, payload);
+                    })
+            });
+
+    }
 }

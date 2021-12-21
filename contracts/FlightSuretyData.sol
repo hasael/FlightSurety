@@ -19,6 +19,7 @@ contract FlightSuretyData is FlightSuretyDataContract {
     //map of insurance keys to all users who have acquired it
     mapping(bytes32 => address[]) private insuranceUsers;
     mapping(bytes32 => Flight) private flights;
+    mapping(bytes32 => bool) private paidInsurances;
 
     struct Flight {
         bool isRegistered;
@@ -30,6 +31,7 @@ contract FlightSuretyData is FlightSuretyDataContract {
     struct Insurance {
         address airline;
         string flight;
+        bool isPaid;
     }
 
     /********************************************************************************************/
@@ -108,11 +110,11 @@ contract FlightSuretyData is FlightSuretyDataContract {
      */
     function addFlight(
         address flightAirline,
-        string memory flight,
+        string calldata flight,
         uint256 timestamp
     ) external {
         // Generate a unique key for storing the flight
-        bytes32 key = getFlightKey(flightAirline, flight, timestamp);
+        bytes32 key = getFlightKey(flightAirline, flight);
         flights[key].isRegistered = true;
         flights[key].statusCode = STATUS_CODE_UNKNOWN;
         flights[key].updatedTimestamp = timestamp;
@@ -125,30 +127,26 @@ contract FlightSuretyData is FlightSuretyDataContract {
         uint256 timestamp,
         uint8 statusCode
     ) external {
-        bytes32 key = getFlightKey(airline, flight, timestamp);
+        bytes32 key = getFlightKey(airline, flight);
         flights[key].statusCode = statusCode;
         flights[key].updatedTimestamp = timestamp;
     }
 
-    function getFlight(
-        address airline,
-        string memory flight,
-        uint256 timestamp
-    )
+    function getFlight(address airline, string calldata flight)
         external
         view
         returns (
-            address,
-            string memory,
-            uint8,
-            uint256
+            address returnAirline,
+            string calldata retFlight,
+            uint8 status,
+            uint256 timestamp
         )
     {
         // Generate a unique key for storing the flight
-        bytes32 key = getFlightKey(airline, flight, timestamp);
+        bytes32 key = getFlightKey(airline, flight);
         return (
-            airline,
-            flight ,
+            flights[key].airline,
+            flight,
             flights[key].statusCode,
             flights[key].updatedTimestamp
         );
@@ -170,8 +168,22 @@ contract FlightSuretyData is FlightSuretyDataContract {
     /**
      *  @dev Credits payouts to insurees
      */
-    function creditInsurees(address user, uint256 credit) external {
-        usersBalance[user] += credit;
+    function creditInsurees(
+        address airline,
+        string calldata flight,
+        uint256 credit
+    ) external {
+        bytes32 key = getInsuranceKey(airline, flight);
+        address[] memory users = insuranceUsers[key];
+
+        for (uint256 i = 0; i < users.length; i++) {
+            address user = users[i];
+            bytes32 paidKey = getPaidInsuranceKey(airline, flight, user);
+            if (!paidInsurances[paidKey]) {
+                paidInsurances[paidKey] = true;
+                usersBalance[user] += credit;
+            }
+        }
     }
 
     /**
@@ -190,17 +202,24 @@ contract FlightSuretyData is FlightSuretyDataContract {
 
     function getFlightKey(
         address airline,
-        string memory flight,
-        uint256 timestamp
+        string calldata flight
     ) internal pure returns (bytes32) {
-        return keccak256(abi.encodePacked(airline, flight, timestamp));
+        return keccak256(abi.encodePacked(airline, flight));
     }
 
-    function getInsuranceKey(address airline, string memory flight)
+    function getInsuranceKey(address airline, string calldata flight)
         internal
         pure
         returns (bytes32)
     {
         return keccak256(abi.encodePacked(airline, flight));
+    }
+
+    function getPaidInsuranceKey(
+        address airline,
+        string calldata flight,
+        address user
+    ) internal pure returns (bytes32) {
+        return keccak256(abi.encodePacked(airline, flight, user));
     }
 }
