@@ -32,17 +32,25 @@ import './flightsurety.css';
             let flight = DOM.elid('flight-number-2').value;
             // Write transaction
             contract.registerFlight(flight, (error, result) => {
-                display('Flights', 'Register flight', [{ label: 'Fetch Flight Status', error: error, value: result.flight + ' ' + result.timestamp }]);
+                display('Flights', 'Register flight', [{ label: 'Register flight Status', error: error, value: result.flight + ' ' + result.timestamp }]);
             });
         })
 
-        //PAssenger buy insurance
+        //Passenger buy insurance
         DOM.elid('buy-insurance').addEventListener('click', () => {
             let flight = DOM.elid('flight-number-user').value;
             let airline = DOM.elid('airline-buy').value;
             // Write transaction
             contract.buyInsurance(flight, airline, (error, result) => {
-                display('Flights', 'Register flight', [{ label: 'Fetch Flight Status', error: error, value: result.flight + ' ' + result.timestamp }]);
+                display('Flights', 'Buy Insurance', [{ label: 'Buy Insurance Status', error: error, value: result.flight + ' ' + result.timestamp }]);
+            });
+        })
+
+        //Airline register
+        DOM.elid('register-airline').addEventListener('click', () => {
+            // Write transaction
+            contract.registerAirline((error, result) => {
+                display('Flights', 'Register Airline', [{ label: 'Register Airline Status', error: error, value: result }]);
             });
         })
         contract.initWeb3();

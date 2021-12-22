@@ -24,10 +24,7 @@ interface FlightSuretyDataContract {
         address user
     ) external;
 
-    function getFlight(
-        address airline,
-        string calldata flight
-    )
+    function getFlight(address airline, string calldata flight)
         external
         view
         returns (
@@ -36,4 +33,8 @@ interface FlightSuretyDataContract {
             uint8 status,
             uint256 timestamp
         );
+
+    function registerAirline(address airline) external;
+
+    function isAirlineRegistered(address airline) external view returns (bool);
 }

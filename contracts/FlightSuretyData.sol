@@ -20,6 +20,7 @@ contract FlightSuretyData is FlightSuretyDataContract {
     mapping(bytes32 => address[]) private insuranceUsers;
     mapping(bytes32 => Flight) private flights;
     mapping(bytes32 => bool) private paidInsurances;
+    mapping(bytes32 => address) private registeredAirlines;
 
     struct Flight {
         bool isRegistered;
@@ -102,7 +103,15 @@ contract FlightSuretyData is FlightSuretyDataContract {
      *      Can only be called from FlightSuretyApp contract
      *
      */
-    function registerAirline() external pure {}
+    function registerAirline(address airline) external {
+        bytes32 key = getAirlineKey(airline);
+        registeredAirlines[key] = airline;
+    }
+
+    function isAirlineRegistered(address airline) external view returns (bool) {
+        bytes32 key = getAirlineKey(airline);
+        return registeredAirlines[key] != address(0);
+    }
 
     /**
      * @dev Register a future flight for insuring.
@@ -200,11 +209,16 @@ contract FlightSuretyData is FlightSuretyDataContract {
         return airlineFunds[airline];
     }
 
-    function getFlightKey(
-        address airline,
-        string calldata flight
-    ) internal pure returns (bytes32) {
+    function getFlightKey(address airline, string calldata flight)
+        internal
+        pure
+        returns (bytes32)
+    {
         return keccak256(abi.encodePacked(airline, flight));
+    }
+
+    function getAirlineKey(address airline) internal pure returns (bytes32) {
+        return keccak256(abi.encodePacked(airline));
     }
 
     function getInsuranceKey(address airline, string calldata flight)

@@ -55,6 +55,15 @@ contract FlightSuretyApp {
         _;
     }
 
+    modifier requireAirline() {
+        // Modify to call data contract's status
+        require(
+            flightSuretyData.isAirlineRegistered(msg.sender),
+            "Only an airline can do this action"
+        );
+        _; // All modifiers require an "_" which indicates where the function body will be added
+    }
+
     /********************************************************************************************/
     /*                                       CONSTRUCTOR                                        */
     /********************************************************************************************/
@@ -90,7 +99,10 @@ contract FlightSuretyApp {
      * @dev Buy insurance for a flight
      *
      */
-    function buyInsurance(address airline, string calldata flight) external payable {
+    function buyInsurance(address airline, string calldata flight)
+        external
+        payable
+    {
         require(msg.value > 0.1 ether, "Not enough funds");
 
         (
@@ -110,11 +122,11 @@ contract FlightSuretyApp {
      * @dev Add an airline to the registration queue
      *
      */
-    function registerAirline()
+    function registerAirline(address airline)
         external
-        pure
         returns (bool success, uint256 votes)
     {
+        flightSuretyData.registerAirline(airline);
         return (success, 0);
     }
 
@@ -126,7 +138,7 @@ contract FlightSuretyApp {
         address airline,
         string calldata flight,
         uint256 timestamp
-    ) external {
+    ) external requireAirline {
         flightSuretyData.addFlight(airline, flight, timestamp);
     }
 
