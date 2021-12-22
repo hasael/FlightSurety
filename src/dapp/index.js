@@ -43,7 +43,7 @@ import './flightsurety.css';
                 display('Flights', 'Register flight', [{ label: 'Fetch Flight Status', error: error, value: result.flight + ' ' + result.timestamp }]);
             });
         })
-
+        contract.initWeb3();
     });
 
 
@@ -64,7 +64,6 @@ function display(title, description, results) {
     displayDiv.append(section);
 
 }
-
 
 
 

@@ -3,6 +3,8 @@ import Config from './config.json';
 import Web3 from 'web3';
 
 export default class Contract {
+
+
     constructor(network, callback) {
 
         let config = Config[network];
@@ -93,5 +95,44 @@ export default class Contract {
                     })
             });
 
+    }
+    initWeb3() {
+        /// Find or Inject Web3 Provider
+        /// Modern dapp browsers...
+        if (window.ethereum) {
+            this.web3 = new Web3(window.ethereum);
+            try {
+                // Request account access
+                window.ethereum.enable();
+            } catch (error) {
+                // User denied account access...
+                console.error("User denied account access")
+            }
+        }
+        // Legacy dapp browsers...
+        else if (window.web3) {
+            this.web3 = new Web3(window.web3.currentProvider);
+        }
+        // If no injected web3 instance is detected, fall back to Ganache
+        else {
+            this.web3 = new Web3.providers.HttpProvider('http://localhost:8545');
+        }
+
+        this.web3.eth.getAccounts((error, accts) => {
+
+            this.owner = web3.currentProvider.selectedAddress;
+
+            let counter = 1;
+
+            while (this.airlines.length < 5) {
+                this.airlines.push(accts[counter++]);
+            }
+
+            while (this.passengers.length < 5) {
+                this.passengers.push(accts[counter++]);
+            }
+
+            console.log('new owner: ' + this.owner);
+        });
     }
 }
