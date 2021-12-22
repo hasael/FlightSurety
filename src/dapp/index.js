@@ -20,8 +20,9 @@ import './flightsurety.css';
         // User-submitted transaction
         DOM.elid('submit-oracle').addEventListener('click', () => {
             let flight = DOM.elid('flight-number').value;
+            let airline = DOM.elid('airline-fetch').value;
             // Write transaction
-            contract.fetchFlightStatus(flight, (error, result) => {
+            contract.fetchFlightStatus(flight, airline, (error, result) => {
                 display('Oracles', 'Trigger oracles', [{ label: 'Fetch Flight Status', error: error, value: result.flight + ' ' + result.timestamp }]);
             });
         })
@@ -38,8 +39,9 @@ import './flightsurety.css';
         //PAssenger buy insurance
         DOM.elid('buy-insurance').addEventListener('click', () => {
             let flight = DOM.elid('flight-number-user').value;
+            let airline = DOM.elid('airline-buy').value;
             // Write transaction
-            contract.buyInsurance(flight, (error, result) => {
+            contract.buyInsurance(flight, airline, (error, result) => {
                 display('Flights', 'Register flight', [{ label: 'Fetch Flight Status', error: error, value: result.flight + ' ' + result.timestamp }]);
             });
         })

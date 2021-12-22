@@ -12,7 +12,6 @@ export default class Contract {
         this.flightSuretyApp = new this.web3.eth.Contract(FlightSuretyApp.abi, config.appAddress);
         this.initialize(callback);
         this.owner = null;
-        this.airlines = [];
         this.passengers = [];
     }
 
@@ -20,16 +19,6 @@ export default class Contract {
         this.web3.eth.getAccounts((error, accts) => {
 
             this.owner = accts[0];
-
-            let counter = 1;
-
-            while (this.airlines.length < 5) {
-                this.airlines.push(accts[counter++]);
-            }
-
-            while (this.passengers.length < 5) {
-                this.passengers.push(accts[counter++]);
-            }
 
             callback();
         });
@@ -42,10 +31,10 @@ export default class Contract {
             .call({ from: self.owner }, callback);
     }
 
-    fetchFlightStatus(flight, callback) {
+    fetchFlightStatus(flight, airline, callback) {
         let self = this;
         let payload = {
-            airline: self.airlines[0],
+            airline: airline,
             flight: flight,
             timestamp: Math.floor(Date.now() / 1000)
         }
@@ -58,7 +47,7 @@ export default class Contract {
     registerFlight(flight, callback) {
         let self = this;
         let payload = {
-            airline: self.airlines[0],
+            airline: self.owner,
             flight: flight,
             timestamp: Math.floor(Date.now() / 1000)
         }
@@ -76,10 +65,10 @@ export default class Contract {
 
     }
 
-    buyInsurance(flight, callback) {
+    buyInsurance(flight, airline, callback) {
         let self = this;
         let payload = {
-            airline: self.airlines[0],
+            airline: airline,
             flight: flight,
             timestamp: Math.floor(Date.now() / 1000)
         }
@@ -96,6 +85,7 @@ export default class Contract {
             });
 
     }
+
     initWeb3() {
         /// Find or Inject Web3 Provider
         /// Modern dapp browsers...
@@ -121,17 +111,6 @@ export default class Contract {
         this.web3.eth.getAccounts((error, accts) => {
 
             this.owner = web3.currentProvider.selectedAddress;
-
-            let counter = 1;
-
-            while (this.airlines.length < 5) {
-                this.airlines.push(accts[counter++]);
-            }
-
-            while (this.passengers.length < 5) {
-                this.passengers.push(accts[counter++]);
-            }
-
             console.log('new owner: ' + this.owner);
         });
     }
