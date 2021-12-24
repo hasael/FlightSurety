@@ -186,7 +186,7 @@ contract FlightSuretyApp {
         oracleResponses[key].requester = msg.sender;
         oracleResponses[key].isOpen = true;
 
-        emit OracleRequest(index, airline, "abc", timestamp);
+        emit OracleRequest(index, airline, flight, timestamp);
     }
 
     // region ORACLE MANAGEMENT

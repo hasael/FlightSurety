@@ -18,7 +18,6 @@ contract FlightSuretyData is FlightSuretyDataContract {
     //map of insurance keys to all users who have acquired it
     mapping(bytes32 => Insurance[]) private insuranceUsers;
     mapping(bytes32 => Flight) private flights;
-    mapping(bytes32 => bool) private paidInsurances;
     mapping(bytes32 => address) private registeredAirlines;
 
     struct Flight {
@@ -229,13 +228,5 @@ contract FlightSuretyData is FlightSuretyDataContract {
         returns (bytes32)
     {
         return keccak256(abi.encodePacked(airline, flight));
-    }
-
-    function getPaidInsuranceKey(
-        address airline,
-        string calldata flight,
-        address user
-    ) internal pure returns (bytes32) {
-        return keccak256(abi.encodePacked(airline, flight, user));
     }
 }
