@@ -2,7 +2,7 @@ pragma solidity ^0.8.10;
 
 import "../node_modules/openzeppelin-solidity/contracts/utils/math/SafeMath.sol";
 import "./FlightSuretyDataContract.sol";
-
+import {FlightStatusCodes} from "./FlightStatusCodes.sol";
 contract FlightSuretyData is FlightSuretyDataContract {
     using SafeMath for uint256;
 
@@ -13,7 +13,6 @@ contract FlightSuretyData is FlightSuretyDataContract {
     address private contractOwner; // Account used to deploy contract
     bool private operational = true; // Blocks all state changes throughout the contract if false
     // Flight status codees
-    uint8 private constant STATUS_CODE_UNKNOWN = 0;
     mapping(address => uint256) private usersBalance;
     mapping(address => uint256) private airlineFunds;
     //map of insurance keys to all users who have acquired it
@@ -125,7 +124,7 @@ contract FlightSuretyData is FlightSuretyDataContract {
         // Generate a unique key for storing the flight
         bytes32 key = getFlightKey(flightAirline, flight);
         flights[key].isRegistered = true;
-        flights[key].statusCode = STATUS_CODE_UNKNOWN;
+        flights[key].statusCode = FlightStatusCodes.STATUS_CODE_UNKNOWN;
         flights[key].updatedTimestamp = timestamp;
         flights[key].airline = flightAirline;
     }
