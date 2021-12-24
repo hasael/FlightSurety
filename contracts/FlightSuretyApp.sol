@@ -26,7 +26,7 @@ contract FlightSuretyApp {
     uint8 private constant STATUS_CODE_LATE_OTHER = 50;
 
     address private contractOwner; // Account used to deploy contract
-
+    bool private operational;
     FlightSuretyDataContract flightSuretyData;
 
     /********************************************************************************************/
@@ -73,6 +73,7 @@ contract FlightSuretyApp {
      *
      */
     constructor(address dataContractAddress) {
+        operational = true;
         contractOwner = msg.sender;
         flightSuretyData = FlightSuretyDataContract(dataContractAddress);
     }
@@ -81,8 +82,17 @@ contract FlightSuretyApp {
     /*                                       UTILITY FUNCTIONS                                  */
     /********************************************************************************************/
 
-    function isOperational() public pure returns (bool) {
-        return true; // Modify to call data contract's status
+    function isOperational() public view returns (bool) {
+        return operational; // Modify to call data contract's status
+    }
+
+    /**
+     * @dev Sets contract operations on/off
+     *
+     * When operational mode is disabled, all write transactions except for this one will fail
+     */
+    function setOperatingStatus(bool mode) external requireContractOwner {
+        operational = mode;
     }
 
     /********************************************************************************************/
