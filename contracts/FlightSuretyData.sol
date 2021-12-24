@@ -3,6 +3,7 @@ pragma solidity ^0.8.10;
 import "../node_modules/openzeppelin-solidity/contracts/utils/math/SafeMath.sol";
 import "./FlightSuretyDataContract.sol";
 import {FlightStatusCodes} from "./FlightStatusCodes.sol";
+
 contract FlightSuretyData is FlightSuretyDataContract {
     using SafeMath for uint256;
 
@@ -18,7 +19,8 @@ contract FlightSuretyData is FlightSuretyDataContract {
     //map of insurance keys to all users who have acquired it
     mapping(bytes32 => Insurance[]) private insuranceUsers;
     mapping(bytes32 => Flight) private flights;
-    mapping(bytes32 => address) private registeredAirlines;
+    mapping(bytes32 => Airline) private registeredAirlines;
+    mapping(string => address) private airlinesNamestoAddress;
 
     struct Flight {
         bool isRegistered;
@@ -31,6 +33,11 @@ contract FlightSuretyData is FlightSuretyDataContract {
         address user;
         uint256 paidAmount;
         uint256 reimbursedAmount;
+    }
+
+    struct Airline {
+        address airlineAddress;
+        string name;
     }
 
     /********************************************************************************************/
@@ -101,14 +108,23 @@ contract FlightSuretyData is FlightSuretyDataContract {
      *      Can only be called from FlightSuretyApp contract
      *
      */
-    function registerAirline(address airline) external {
+    function registerAirline(address airline, string calldata name) external {
         bytes32 key = getAirlineKey(airline);
-        registeredAirlines[key] = airline;
+        registeredAirlines[key] = Airline(airline, name);
+        airlinesNamestoAddress[name] = airline;
     }
 
     function isAirlineRegistered(address airline) external view returns (bool) {
         bytes32 key = getAirlineKey(airline);
-        return registeredAirlines[key] != address(0);
+        return registeredAirlines[key].airlineAddress != address(0);
+    }
+
+    function airlineAddressFromName(string calldata name)
+        external
+        view
+        returns (address)
+    {
+        return airlinesNamestoAddress[name];
     }
 
     /**

@@ -49,7 +49,8 @@ import './flightsurety.css';
         //Airline register
         DOM.elid('register-airline').addEventListener('click', () => {
             // Write transaction
-            contract.registerAirline((error, result) => {
+            let name = DOM.elid('register-airline-name').value;
+            contract.registerAirline(name, (error, result) => {
                 display('Flights', 'Register Airline', [{ label: 'Register Airline Status', error: error, value: result }]);
             });
         })

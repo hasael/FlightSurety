@@ -13,34 +13,38 @@
 
     <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
         <a class="navbar-brand" href="#">FlightSurety</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault"
-            aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault"
+            aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
     </nav>
 
     <main class="container">
-      
+
         <div id="display-wrapper" class="top-20">
         </div>
         <h4>Airline</h4>
-        <br/>
+        <br />
         <div class="row top-20">
-          <btn class="btn btn-primary" id="register-airline">Register as Airline</btn>
+            <input type="text" id="register-airline-name">
+            <btn class="btn btn-primary" id="register-airline">Register as Airline</btn>
         </div>
         <div class="row top-20">
-            <label class="form">Flight</label> <input type="text" id="flight-number-2"> <btn class="btn btn-primary" id="register-flight">Register Flight</btn>
+            <label class="form">Flight</label> <input type="text" id="flight-number-2">
+            <btn class="btn btn-primary" id="register-flight">Register Flight</btn>
         </div>
-        <br/>
+        <br />
         <h4>User</h4>
-        <br/>
+        <br />
         <div class="row top-20">
             <label class="form">Flight</label> <input type="text" id="flight-number">
-             <label class="form">Airline</label> <input type="text" id="airline-fetch"> <btn class="btn btn-primary" id="submit-oracle">Fetch flight status</btn>
+            <label class="form">Airline</label> <input type="text" id="airline-fetch">
+            <btn class="btn btn-primary" id="submit-oracle">Fetch flight status</btn>
         </div>
         <div class="row top-20">
-            <label class="form">Flight</label> <input type="text" id="flight-number-user"> 
-            <label class="form">Airline</label> <input type="text" id="airline-buy">  <btn class="btn btn-primary" id="buy-insurance">Buy Insurance</btn>
+            <label class="form">Flight</label> <input type="text" id="flight-number-user">
+            <label class="form">Airline</label> <input type="text" id="airline-buy">
+            <btn class="btn btn-primary" id="buy-insurance">Buy Insurance</btn>
         </div>
     </main>
 

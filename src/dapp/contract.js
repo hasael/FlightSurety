@@ -45,12 +45,18 @@ export default class Contract {
             });
     }
 
-    registerAirline(callback) {
+    registerAirline(name, callback) {
         let self = this;
         self.flightSuretyApp.methods
-            .registerAirline(self.owner)
-            .send({ from: self.owner }, (error, result) => {
-                callback(error, result);
+            .registerAirline(self.owner, name)
+            .estimateGas({ from: self.owner }, (error, estimatedGas) => {
+                if (error)
+                    console.error('error estimating gas ' + error);
+                self.flightSuretyApp.methods
+                    .registerAirline(self.owner, name)
+                    .send({ from: self.owner , gas: estimatedGas}, (error, result) => {
+                        callback(error, result);
+                    })
             });
     }
 

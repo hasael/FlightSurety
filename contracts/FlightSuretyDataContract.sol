@@ -12,10 +12,7 @@ interface FlightSuretyDataContract {
         uint8 statusCode
     ) external;
 
-    function creditInsurees(
-        address airline,
-        string calldata flight
-    ) external;
+    function creditInsurees(address airline, string calldata flight) external;
 
     function addUserInsurance(
         string calldata flight,
@@ -34,7 +31,12 @@ interface FlightSuretyDataContract {
             uint256 timestamp
         );
 
-    function registerAirline(address airline) external;
+    function registerAirline(address airline, string calldata name) external;
+
+    function airlineAddressFromName(string calldata name)
+        external
+        view
+        returns (address);
 
     function isAirlineRegistered(address airline) external view returns (bool);
 }

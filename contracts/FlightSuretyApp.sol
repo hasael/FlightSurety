@@ -17,7 +17,6 @@ contract FlightSuretyApp {
     /*                                       DATA VARIABLES                                     */
     /********************************************************************************************/
 
-
     address private contractOwner; // Account used to deploy contract
     bool private operational;
     FlightSuretyDataContract flightSuretyData;
@@ -102,13 +101,13 @@ contract FlightSuretyApp {
      * @dev Buy insurance for a flight
      *
      */
-    function buyInsurance(address airline, string calldata flight)
+    function buyInsurance(string calldata airlineName, string calldata flight)
         external
         payable
     {
         require(msg.value > 0 ether, "Not enough funds");
         require(msg.value <= 1 ether, "Not allowed more than 1 ether");
-
+        address airline = flightSuretyData.airlineAddressFromName(airlineName);
         (
             address returnAirline,
             string memory retFlight,
@@ -131,11 +130,11 @@ contract FlightSuretyApp {
      * @dev Add an airline to the registration queue
      *
      */
-    function registerAirline(address airline)
+    function registerAirline(address airline, string calldata name)
         external
         returns (bool success, uint256 votes)
     {
-        flightSuretyData.registerAirline(airline);
+        flightSuretyData.registerAirline(airline, name);
         return (success, 0);
     }
 
@@ -173,12 +172,20 @@ contract FlightSuretyApp {
 
     // Generate a request for oracles to fetch flight information
     function fetchFlightStatus(
-        address airline,
+        string calldata airlineName,
         string memory flight,
         uint256 timestamp
     ) external {
         uint8 index = getRandomIndex(msg.sender);
+        address airline = flightSuretyData.airlineAddressFromName(airlineName);
+        (
+            address returnAirline,
+            string memory retFlight,
+            uint8 status,
+            uint256 retTimestamp
+        ) = flightSuretyData.getFlight(airline, flight);
 
+        require(returnAirline != address(0), "Flight not found");
         // Generate a unique key for storing the request
         bytes32 key = keccak256(
             abi.encodePacked(index, airline, flight, timestamp)
