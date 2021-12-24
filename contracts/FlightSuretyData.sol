@@ -17,7 +17,7 @@ contract FlightSuretyData is FlightSuretyDataContract {
     mapping(address => uint256) private usersBalance;
     mapping(address => uint256) private airlineFunds;
     //map of insurance keys to all users who have acquired it
-    mapping(bytes32 => address[]) private insuranceUsers;
+    mapping(bytes32 => Insurance[]) private insuranceUsers;
     mapping(bytes32 => Flight) private flights;
     mapping(bytes32 => bool) private paidInsurances;
     mapping(bytes32 => address) private registeredAirlines;
@@ -30,9 +30,9 @@ contract FlightSuretyData is FlightSuretyDataContract {
     }
 
     struct Insurance {
-        address airline;
-        string flight;
-        bool isPaid;
+        address user;
+        uint256 paidAmount;
+        uint256 reimbursedAmount;
     }
 
     /********************************************************************************************/
@@ -168,29 +168,32 @@ contract FlightSuretyData is FlightSuretyDataContract {
     function addUserInsurance(
         string calldata flight,
         address airline,
-        address user
+        address user,
+        uint256 amount
     ) external {
         bytes32 key = getInsuranceKey(airline, flight);
-        insuranceUsers[key].push(user);
+        insuranceUsers[key].push(Insurance(user, amount, 0));
     }
 
     /**
      *  @dev Credits payouts to insurees
      */
-    function creditInsurees(
-        address airline,
-        string calldata flight,
-        uint256 credit
-    ) external {
+    function creditInsurees(address airline, string calldata flight) external {
         bytes32 key = getInsuranceKey(airline, flight);
-        address[] memory users = insuranceUsers[key];
+        Insurance[] memory userInsurances = insuranceUsers[key];
 
-        for (uint256 i = 0; i < users.length; i++) {
-            address user = users[i];
-            bytes32 paidKey = getPaidInsuranceKey(airline, flight, user);
-            if (!paidInsurances[paidKey]) {
-                paidInsurances[paidKey] = true;
-                usersBalance[user] += credit;
+        for (uint256 i = 0; i < userInsurances.length; i++) {
+            address insuranceUser = userInsurances[i].user;
+            uint256 reimbursedAmount = userInsurances[i].reimbursedAmount;
+            uint256 insuranceAmount = userInsurances[i].paidAmount;
+            if (reimbursedAmount == 0) {
+                uint256 credit = (insuranceAmount * 3) / 2;
+                userInsurances[i] = Insurance(
+                    insuranceUser,
+                    insuranceAmount,
+                    reimbursedAmount
+                );
+                usersBalance[insuranceUser] += credit;
             }
         }
     }

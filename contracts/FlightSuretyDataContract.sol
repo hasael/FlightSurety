@@ -14,14 +14,14 @@ interface FlightSuretyDataContract {
 
     function creditInsurees(
         address airline,
-        string calldata flight,
-        uint256 credit
+        string calldata flight
     ) external;
 
     function addUserInsurance(
         string calldata flight,
         address airline,
-        address user
+        address user,
+        uint256 amount
     ) external;
 
     function getFlight(address airline, string calldata flight)

@@ -103,7 +103,8 @@ contract FlightSuretyApp {
         external
         payable
     {
-        require(msg.value > 0.1 ether, "Not enough funds");
+        require(msg.value > 0 ether, "Not enough funds");
+        require(msg.value <= 1 ether, "Not allowed more than 1 ether");
 
         (
             address returnAirline,
@@ -113,7 +114,12 @@ contract FlightSuretyApp {
         ) = flightSuretyData.getFlight(airline, flight);
         require(returnAirline != address(0), "Flight not found");
 
-        flightSuretyData.addUserInsurance(flight, airline, msg.sender);
+        flightSuretyData.addUserInsurance(
+            flight,
+            airline,
+            msg.sender,
+            msg.value
+        );
     }
 
     function fund() public payable {}
@@ -159,7 +165,7 @@ contract FlightSuretyApp {
             statusCode
         );
 
-        flightSuretyData.creditInsurees(airline, flight, 1);
+        flightSuretyData.creditInsurees(airline, flight);
     }
 
     // Generate a request for oracles to fetch flight information
