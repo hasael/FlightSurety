@@ -56,6 +56,15 @@ contract FlightSuretyApp {
         _; // All modifiers require an "_" which indicates where the function body will be added
     }
 
+        modifier notExistingAirline(address airline) {
+        // Modify to call data contract's status
+        require(
+            !flightSuretyData.isAirlineRegistered(airline),
+            "Address already registered to an airline"
+        );
+        _; // All modifiers require an "_" which indicates where the function body will be added
+    }
+
     /********************************************************************************************/
     /*                                       CONSTRUCTOR                                        */
     /********************************************************************************************/
@@ -132,6 +141,8 @@ contract FlightSuretyApp {
      */
     function registerAirline(address airline, string calldata name)
         external
+        requireAirline
+        notExistingAirline(airline)
         returns (bool success, uint256 votes)
     {
         flightSuretyData.registerAirline(airline, name);

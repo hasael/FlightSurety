@@ -48,7 +48,8 @@ contract FlightSuretyData is FlightSuretyDataContract {
      * @dev Constructor
      *      The deploying account becomes contractOwner
      */
-    constructor() {
+    constructor(address firstAirline, string memory airlineName) {
+        addAirline(firstAirline, airlineName);
         contractOwner = msg.sender;
     }
 
@@ -109,6 +110,10 @@ contract FlightSuretyData is FlightSuretyDataContract {
      *
      */
     function registerAirline(address airline, string calldata name) external {
+        addAirline(airline, name);
+    }
+
+    function addAirline(address airline, string memory name) internal {
         bytes32 key = getAirlineKey(airline);
         registeredAirlines[key] = Airline(airline, name);
         airlinesNamestoAddress[name] = airline;
