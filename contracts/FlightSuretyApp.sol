@@ -56,7 +56,7 @@ contract FlightSuretyApp {
         _; // All modifiers require an "_" which indicates where the function body will be added
     }
 
-        modifier notExistingAirline(address airline) {
+    modifier notExistingAirline(address airline) {
         // Modify to call data contract's status
         require(
             !flightSuretyData.isAirlineRegistered(airline),
@@ -145,8 +145,22 @@ contract FlightSuretyApp {
         notExistingAirline(airline)
         returns (bool success, uint256 votes)
     {
-        flightSuretyData.registerAirline(airline, name);
-        return (success, 0);
+        uint128 airlineCount = flightSuretyData.getAirlineCount();
+        if (airlineCount < 5) {
+            flightSuretyData.registerAirline(airline, name);
+            return (true, 0);
+        } else {
+            flightSuretyData.addAirlineRegisterVote(airline);
+            uint128 currentVote = flightSuretyData.getAirlineRegisterVote(
+                airline
+            );
+            if (100 * (currentVote / airlineCount) >= 50) {
+                flightSuretyData.registerAirline(airline, name);
+                return (true, currentVote);
+            } else {
+                return (false, currentVote);
+            }
+        }
     }
 
     /**

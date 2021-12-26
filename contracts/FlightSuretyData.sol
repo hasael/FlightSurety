@@ -21,6 +21,8 @@ contract FlightSuretyData is FlightSuretyDataContract {
     mapping(bytes32 => Flight) private flights;
     mapping(bytes32 => Airline) private registeredAirlines;
     mapping(string => address) private airlinesNamestoAddress;
+    mapping(bytes32 => uint128) private airlineRegisterVotes;
+    uint128 private airlineCount;
 
     struct Flight {
         bool isRegistered;
@@ -113,10 +115,25 @@ contract FlightSuretyData is FlightSuretyDataContract {
         addAirline(airline, name);
     }
 
+    function addAirlineRegisterVote(address airline) external {
+        bytes32 key = getAirlineKey(airline);
+        airlineRegisterVotes[key] += airlineRegisterVotes[key];
+    }
+
+    function getAirlineRegisterVote(address airline) external view returns(uint128){
+        bytes32 key = getAirlineKey(airline);
+        return airlineRegisterVotes[key];
+    }
+
+    function getAirlineCount() external view returns(uint128){
+        return airlineCount;
+    }
+
     function addAirline(address airline, string memory name) internal {
         bytes32 key = getAirlineKey(airline);
         registeredAirlines[key] = Airline(airline, name);
         airlinesNamestoAddress[name] = airline;
+        airlineCount++;
     }
 
     function isAirlineRegistered(address airline) external view returns (bool) {
