@@ -150,7 +150,9 @@ contract FlightSuretyApp {
             flightSuretyData.registerAirline(airline, name);
             return (true, 0);
         } else {
-            flightSuretyData.addAirlineRegisterVote(airline);
+            if (!flightSuretyData.hasAlreadyVoted(airline, msg.sender)) {
+                flightSuretyData.addAirlineRegisterVote(airline, msg.sender);
+            }
             uint128 currentVote = flightSuretyData.getAirlineRegisterVote(
                 airline
             );

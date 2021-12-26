@@ -40,7 +40,8 @@ interface FlightSuretyDataContract {
 
     function isAirlineRegistered(address airline) external view returns (bool);
 
-    function addAirlineRegisterVote(address airline) external;
+    function addAirlineRegisterVote(address airline, address requester)
+        external;
 
     function getAirlineRegisterVote(address airline)
         external
@@ -48,4 +49,9 @@ interface FlightSuretyDataContract {
         returns (uint128);
 
     function getAirlineCount() external view returns (uint128);
+
+    function hasAlreadyVoted(address airline, address requester)
+        external
+        view
+        returns (bool);
 }

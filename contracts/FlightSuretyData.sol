@@ -22,6 +22,7 @@ contract FlightSuretyData is FlightSuretyDataContract {
     mapping(bytes32 => Airline) private registeredAirlines;
     mapping(string => address) private airlinesNamestoAddress;
     mapping(bytes32 => uint128) private airlineRegisterVotes;
+    mapping(bytes32 => bool) private airlineRegisterVotesHistory;
     uint128 private airlineCount;
 
     struct Flight {
@@ -115,17 +116,38 @@ contract FlightSuretyData is FlightSuretyDataContract {
         addAirline(airline, name);
     }
 
-    function addAirlineRegisterVote(address airline) external {
+    function addAirlineRegisterVote(address airline, address requester)
+        external
+    {
         bytes32 key = getAirlineKey(airline);
+        bytes32 voteHistoryKey = keccak256(
+            abi.encodePacked(airline, requester)
+        );
         airlineRegisterVotes[key] += airlineRegisterVotes[key];
+        airlineRegisterVotesHistory[voteHistoryKey] = true;
     }
 
-    function getAirlineRegisterVote(address airline) external view returns(uint128){
+    function hasAlreadyVoted(address airline, address requester)
+        external
+        view
+        returns (bool)
+    {
+        bytes32 voteHistoryKey = keccak256(
+            abi.encodePacked(airline, requester)
+        );
+        return airlineRegisterVotesHistory[voteHistoryKey];
+    }
+
+    function getAirlineRegisterVote(address airline)
+        external
+        view
+        returns (uint128)
+    {
         bytes32 key = getAirlineKey(airline);
         return airlineRegisterVotes[key];
     }
 
-    function getAirlineCount() external view returns(uint128){
+    function getAirlineCount() external view returns (uint128) {
         return airlineCount;
     }
 
