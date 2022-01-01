@@ -13,7 +13,7 @@ import './flightsurety.css';
         // Read transaction
         //contract.isOperational((error, result) => {
         //    console.log(error, result);
-         //   display('Operational Status', 'Check if contract is operational', [{ label: 'Operational Status', error: error, value: result }]);
+        //   display('Operational Status', 'Check if contract is operational', [{ label: 'Operational Status', error: error, value: result }]);
         //});
 
 
@@ -40,12 +40,14 @@ import './flightsurety.css';
         DOM.elid('buy-insurance').addEventListener('click', () => {
             let flight = DOM.elid('flight-number-user').value;
             let airline = DOM.elid('airline-buy').value;
+            let insuranceValue = DOM.elid('insurance-value-buy').value;
             // Write transaction
-            contract.buyInsurance(flight, airline, (error, result) => {
+            contract.buyInsurance(flight, airline, insuranceValue, (error, result) => {
                 display('Flights', 'Buy Insurance', [{ label: 'Buy Insurance Status', error: error, value: result.flight + ' ' + result.timestamp }]);
             });
         })
 
+        
         //Airline register
         DOM.elid('register-airline').addEventListener('click', () => {
             // Write transaction
@@ -55,7 +57,15 @@ import './flightsurety.css';
                 display('Flights', 'Register Airline', [{ label: 'Register Airline Status', error: error, value: result }]);
             });
         })
-        //contract.initWeb3();
+        //Airline fund
+        DOM.elid('fund-bttn').addEventListener('click', () => {
+            // Write transaction
+            let fundValue = DOM.elid('fund-value').value;
+            
+            contract.fundAirline(fundValue, (error, result) => {
+                display('Flights', 'Register Airline', [{ label: 'Register Airline Status', error: error, value: result }]);
+            });
+        })
     });
 
 

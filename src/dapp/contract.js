@@ -61,7 +61,7 @@ export default class Contract {
 
     }
 
-    buyInsurance(flight, airline, callback) {
+    buyInsurance(flight, airline, value, callback) {
         let self = this;
         let payload = {
             airline: airline,
@@ -70,10 +70,19 @@ export default class Contract {
         }
         self.flightSuretyApp.methods
             .buyInsurance(payload.airline, payload.flight)
-            .send({ from: web3.currentProvider.selectedAddress, value: this.web3.utils.toWei("0.11", "ether") }, (error, result) => {
+            .send({ from: web3.currentProvider.selectedAddress, value: this.web3.utils.toWei(value, "ether") }, (error, result) => {
                 callback(error, payload);
             });
 
+    }
+
+    fundAirline(fundValue, callback) {
+        let self = this;
+        self.flightSuretyApp.methods
+            .fundAirline()
+            .send({ from: web3.currentProvider.selectedAddress, value: this.web3.utils.toWei(fundValue, "ether") }, (error, result) => {
+                callback(error, result);
+            });
     }
 
     initWeb3() {
