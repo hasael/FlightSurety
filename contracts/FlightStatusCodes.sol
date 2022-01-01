@@ -8,4 +8,9 @@ library FlightStatusCodes {
     uint8 constant STATUS_CODE_LATE_WEATHER = 30;
     uint8 constant STATUS_CODE_LATE_TECHNICAL = 40;
     uint8 constant STATUS_CODE_LATE_OTHER = 50;
+
+    struct FlightInfo {
+        string flight;
+        string airline;
+    }
 }

@@ -125,7 +125,7 @@ contract FlightSuretyApp {
     {
         require(msg.value > 0 ether, "Not enough funds");
         require(msg.value <= 1 ether, "Not allowed more than 1 ether");
-         address airline = flightSuretyData.airlineAddressFromName(airlineName);
+        address airline = flightSuretyData.airlineAddressFromName(airlineName);
         (
             address returnAirline,
             string memory retFlight,
@@ -188,6 +188,14 @@ contract FlightSuretyApp {
         uint256 timestamp
     ) external requireFundedAirline {
         flightSuretyData.addFlight(airline, flight, timestamp);
+    }
+
+    function getFlightsList()
+        external
+        view
+        returns (FlightStatusCodes.FlightInfo[] memory)
+    {
+        return flightSuretyData.getFlightsList();
     }
 
     /**
@@ -400,7 +408,5 @@ contract FlightSuretyApp {
      * @dev Fallback function for funding smart contract.
      *
      */
-    fallback() external payable {
-        
-    }
+    fallback() external payable {}
 }

@@ -10,12 +10,6 @@ import './flightsurety.css';
 
     let contract = new Contract('localhost', () => {
 
-        // Read transaction
-        //contract.isOperational((error, result) => {
-        //    console.log(error, result);
-        //   display('Operational Status', 'Check if contract is operational', [{ label: 'Operational Status', error: error, value: result }]);
-        //});
-
 
         // User-submitted transaction
         DOM.elid('submit-oracle').addEventListener('click', () => {
@@ -47,7 +41,7 @@ import './flightsurety.css';
             });
         })
 
-        
+
         //Airline register
         DOM.elid('register-airline').addEventListener('click', () => {
             // Write transaction
@@ -61,11 +55,23 @@ import './flightsurety.css';
         DOM.elid('fund-bttn').addEventListener('click', () => {
             // Write transaction
             let fundValue = DOM.elid('fund-value').value;
-            
+
             contract.fundAirline(fundValue, (error, result) => {
                 display('Flights', 'Register Airline', [{ label: 'Register Airline Status', error: error, value: result }]);
             });
         })
+    });
+
+    // Read transaction
+    contract.isOperational((error, result) => {
+        console.log(error, result);
+        display('Operational Status', 'Check if contract is operational', [{ label: 'Operational Status', error: error, value: result }]);
+    });
+
+    // Read transaction
+    contract.getFlights((error, result) => {
+        console.log(error, result);
+        displayFlights(result);
     });
 
 
@@ -87,8 +93,15 @@ function display(title, description, results) {
 
 }
 
-
-
-
-
-
+function displayFlights(results) {
+    let displayDiv = DOM.elid("flights-wrapper");
+    let section = DOM.section();
+    section.appendChild(DOM.h2("Flights"));
+    results.map((result) => {
+        let row = section.appendChild(DOM.div({ className: 'row' }));
+        row.appendChild(DOM.div({ className: 'col-sm-6 field' }, 'Airline: ' + result.airline));
+        row.appendChild(DOM.div({ className: 'col-sm-6 field-value' }, 'Flight: ' + result.flight));
+        section.appendChild(row);
+    })
+    displayDiv.append(section);
+}

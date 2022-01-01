@@ -23,6 +23,7 @@ contract FlightSuretyData is FlightSuretyDataContract {
     mapping(string => address) private airlinesNamestoAddress;
     mapping(bytes32 => uint128) private airlineRegisterVotes;
     mapping(bytes32 => bool) private airlineRegisterVotesHistory;
+    FlightStatusCodes.FlightInfo[] private flightLists;
     uint128 private airlineCount;
 
     struct Flight {
@@ -206,6 +207,9 @@ contract FlightSuretyData is FlightSuretyDataContract {
         flights[key].statusCode = FlightStatusCodes.STATUS_CODE_UNKNOWN;
         flights[key].updatedTimestamp = timestamp;
         flights[key].airline = flightAirline;
+
+        bytes32 airlineKey = getAirlineKey(flightAirline);
+        flightLists.push(FlightStatusCodes.FlightInfo(flight, registeredAirlines[airlineKey].name));
     }
 
     function updateFlightStatus(
@@ -237,6 +241,14 @@ contract FlightSuretyData is FlightSuretyDataContract {
             flights[key].statusCode,
             flights[key].updatedTimestamp
         );
+    }
+
+    function getFlightsList()
+        external
+        view
+        returns (FlightStatusCodes.FlightInfo[] memory)
+    {
+        return flightLists;
     }
 
     /**

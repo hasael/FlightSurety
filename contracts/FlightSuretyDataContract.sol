@@ -1,3 +1,5 @@
+import {FlightStatusCodes} from "./FlightStatusCodes.sol";
+
 interface FlightSuretyDataContract {
     function addFlight(
         address airline,
@@ -58,4 +60,6 @@ interface FlightSuretyDataContract {
     function isAirlineFunded(address airline) external view returns (bool);
 
     function setAirlineAsFunded(address airline) external;
+
+    function getFlightsList() external view returns (FlightStatusCodes.FlightInfo[] memory);
 }
