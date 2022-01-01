@@ -41,6 +41,14 @@ import './flightsurety.css';
             });
         })
 
+        //Passenger withdraw balance
+        DOM.elid('withdraw-balance').addEventListener('click', () => {
+            let value = DOM.elid('withdraw-value').value;
+            // Write transaction
+            contract.withdrawBalance(value, (error, result) => {
+                display('Flights', 'Buy Insurance', [{ label: 'withdraw- Status', error: error, value: result }]);
+            });
+        })
 
         //Airline register
         DOM.elid('register-airline').addEventListener('click', () => {
@@ -60,6 +68,7 @@ import './flightsurety.css';
                 display('Flights', 'Register Airline', [{ label: 'Register Airline Status', error: error, value: result }]);
             });
         })
+
     });
 
     // Read transaction

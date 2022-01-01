@@ -61,5 +61,10 @@ interface FlightSuretyDataContract {
 
     function setAirlineAsFunded(address airline) external;
 
-    function getFlightsList() external view returns (FlightStatusCodes.FlightInfo[] memory);
+    function getFlightsList()
+        external
+        view
+        returns (FlightStatusCodes.FlightInfo[] memory);
+
+    function withdrawUserBalance(uint256 amount) external;
 }

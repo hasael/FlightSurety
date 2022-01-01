@@ -292,7 +292,11 @@ contract FlightSuretyData is FlightSuretyDataContract {
      *  @dev Transfers eligible payout funds to insuree
      *
      */
-    function pay() external pure {}
+    function withdrawUserBalance(uint256 amount) external {
+        require(amount <= usersBalance[msg.sender], "Requested amount higher than balance");
+        require(amount > 0, "Request amount should be not zero");
+        usersBalance[msg.sender] = usersBalance[msg.sender] - amount;
+    }
 
     function addAirlineFunds(address airline, uint256 amount) external {
         airlineFunds[airline] += amount;

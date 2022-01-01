@@ -218,6 +218,11 @@ contract FlightSuretyApp {
         flightSuretyData.creditInsurees(airline, flight);
     }
 
+    function withdrawUserBalance(uint256 amount) external {
+        flightSuretyData.withdrawUserBalance(amount);
+        payable(msg.sender).transfer(amount);
+    }
+
     // Generate a request for oracles to fetch flight information
     function fetchFlightStatus(
         string calldata airlineName,

@@ -91,6 +91,15 @@ export default class Contract {
             });
     }
 
+    withdrawBalance(value, callback) {
+        let self = this;
+        self.flightSuretyApp.methods
+            .withdrawUserBalance(this.web3.utils.toWei(value, "ether"))
+            .send({ from: web3.currentProvider.selectedAddress }, (error, result) => {
+                callback(error, result);
+            });
+    }
+
     initWeb3() {
         /// Find or Inject Web3 Provider
         /// Modern dapp browsers...
