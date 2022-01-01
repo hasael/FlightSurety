@@ -41,6 +41,7 @@ contract FlightSuretyData is FlightSuretyDataContract {
     struct Airline {
         address airlineAddress;
         string name;
+        bool hasPaidFunds;
     }
 
     /********************************************************************************************/
@@ -153,7 +154,7 @@ contract FlightSuretyData is FlightSuretyDataContract {
 
     function addAirline(address airline, string memory name) internal {
         bytes32 key = getAirlineKey(airline);
-        registeredAirlines[key] = Airline(airline, name);
+        registeredAirlines[key] = Airline(airline, name, false);
         airlinesNamestoAddress[name] = airline;
         airlineCount++;
     }
@@ -161,6 +162,18 @@ contract FlightSuretyData is FlightSuretyDataContract {
     function isAirlineRegistered(address airline) external view returns (bool) {
         bytes32 key = getAirlineKey(airline);
         return registeredAirlines[key].airlineAddress != address(0);
+    }
+
+    function isAirlineFunded(address airline) external view returns (bool) {
+        bytes32 key = getAirlineKey(airline);
+        Airline memory foundAirline = registeredAirlines[key];
+        return foundAirline.airlineAddress != address(0) && foundAirline.hasPaidFunds == true;
+    }
+
+    function setAirlineAsFunded(address airline) external {
+        bytes32 key = getAirlineKey(airline);
+        Airline memory foundAirline = registeredAirlines[key];
+        registeredAirlines[key] = Airline(airline, foundAirline.name, true);
     }
 
     function airlineAddressFromName(string calldata name)

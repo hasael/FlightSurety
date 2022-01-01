@@ -54,4 +54,8 @@ interface FlightSuretyDataContract {
         external
         view
         returns (bool);
+
+    function isAirlineFunded(address airline) external view returns (bool);
+
+    function setAirlineAsFunded(address airline) external;
 }

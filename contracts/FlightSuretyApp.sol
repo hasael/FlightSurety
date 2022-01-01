@@ -47,11 +47,20 @@ contract FlightSuretyApp {
         _;
     }
 
-    modifier requireAirline() {
+    modifier requireRegisteredAirline() {
         // Modify to call data contract's status
         require(
             flightSuretyData.isAirlineRegistered(msg.sender),
-            "Only an airline can do this action"
+            "Only a registered airline can do this action"
+        );
+        _; // All modifiers require an "_" which indicates where the function body will be added
+    }
+
+    modifier requireFundedAirline() {
+        // Modify to call data contract's status
+        require(
+            flightSuretyData.isAirlineFunded(msg.sender),
+            "Only a funded airline can do this action"
         );
         _; // All modifiers require an "_" which indicates where the function body will be added
     }
@@ -133,7 +142,10 @@ contract FlightSuretyApp {
         );
     }
 
-    function fund() public payable {}
+    function fundAirline() external payable requireRegisteredAirline {
+        require(msg.value == 10 ether, "10 ether required to fund an airline");
+        flightSuretyData.setAirlineAsFunded(msg.sender);
+    }
 
     /**
      * @dev Add an airline to the registration queue
@@ -141,7 +153,7 @@ contract FlightSuretyApp {
      */
     function registerAirline(address airline, string calldata name)
         external
-        requireAirline
+        requireRegisteredAirline
         notExistingAirline(airline)
         returns (bool success, uint256 votes)
     {
@@ -173,7 +185,7 @@ contract FlightSuretyApp {
         address airline,
         string calldata flight,
         uint256 timestamp
-    ) external requireAirline {
+    ) external requireFundedAirline {
         flightSuretyData.addFlight(airline, flight, timestamp);
     }
 
@@ -388,6 +400,6 @@ contract FlightSuretyApp {
      *
      */
     fallback() external payable {
-        fund();
+        
     }
 }
