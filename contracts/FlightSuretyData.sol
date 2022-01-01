@@ -54,6 +54,7 @@ contract FlightSuretyData is FlightSuretyDataContract {
      */
     constructor(address firstAirline, string memory airlineName) {
         addAirline(firstAirline, airlineName);
+        setAirlineAsFundedInternal(firstAirline);
         contractOwner = msg.sender;
     }
 
@@ -167,10 +168,16 @@ contract FlightSuretyData is FlightSuretyDataContract {
     function isAirlineFunded(address airline) external view returns (bool) {
         bytes32 key = getAirlineKey(airline);
         Airline memory foundAirline = registeredAirlines[key];
-        return foundAirline.airlineAddress != address(0) && foundAirline.hasPaidFunds == true;
+        return
+            foundAirline.airlineAddress != address(0) &&
+            foundAirline.hasPaidFunds == true;
     }
 
     function setAirlineAsFunded(address airline) external {
+        setAirlineAsFundedInternal(airline);
+    }
+
+    function setAirlineAsFundedInternal(address airline) internal {
         bytes32 key = getAirlineKey(airline);
         Airline memory foundAirline = registeredAirlines[key];
         registeredAirlines[key] = Airline(airline, foundAirline.name, true);

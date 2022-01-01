@@ -8,20 +8,12 @@ export default class Contract {
     constructor(network, callback) {
 
         let config = Config[network];
-        this.web3 = new Web3(new Web3.providers.HttpProvider(config.url));
+        this.initWeb3();
         this.flightSuretyApp = new this.web3.eth.Contract(FlightSuretyApp.abi, config.appAddress);
-        this.initialize(callback);
+        console.log(this.flightSuretyApp);
         this.owner = null;
         this.passengers = [];
-    }
-
-    initialize(callback) {
-        this.web3.eth.getAccounts((error, accts) => {
-
-            this.owner = accts[0];
-
-            callback();
-        });
+        callback();
     }
 
     isOperational(callback) {
@@ -40,7 +32,7 @@ export default class Contract {
         }
         self.flightSuretyApp.methods
             .fetchFlightStatus(payload.airline, payload.flight, payload.timestamp)
-            .send({ from: self.owner }, (error, result) => {
+            .send({ from: web3.currentProvider.selectedAddress }, (error, result) => {
                 callback(error, payload);
             });
     }
@@ -49,14 +41,8 @@ export default class Contract {
         let self = this;
         self.flightSuretyApp.methods
             .registerAirline(airlineAddress, name)
-            .estimateGas({ from: self.owner }, (error, estimatedGas) => {
-                if (error)
-                    console.error('error estimating gas ' + error);
-                self.flightSuretyApp.methods
-                    .registerAirline(airlineAddress, name)
-                    .send({ from: self.owner , gas: estimatedGas}, (error, result) => {
-                        callback(error, result);
-                    })
+            .send({ from: web3.currentProvider.selectedAddress }, (error, result) => {
+                callback(error, result);
             });
     }
 
@@ -69,14 +55,8 @@ export default class Contract {
         }
         self.flightSuretyApp.methods
             .registerFlight(payload.airline, payload.flight, payload.timestamp)
-            .estimateGas({ from: self.owner }, (error, estimatedGas) => {
-                if (error)
-                    console.error('error estimating gas ' + error);
-                self.flightSuretyApp.methods
-                    .registerFlight(payload.airline, payload.flight, payload.timestamp)
-                    .send({ from: self.owner, gas: estimatedGas }, (error, result) => {
-                        callback(error, payload);
-                    })
+            .send({ from: web3.currentProvider.selectedAddress }, (error, result) => {
+                callback(error, payload);
             });
 
     }
@@ -90,14 +70,8 @@ export default class Contract {
         }
         self.flightSuretyApp.methods
             .buyInsurance(payload.airline, payload.flight)
-            .estimateGas({ from: self.owner, value: this.web3.utils.toWei("0.11", "ether") }, (error, estimatedGas) => {
-                if (error)
-                    console.error('error estimating gas ' + error);
-                self.flightSuretyApp.methods
-                    .buyInsurance(payload.airline, payload.flight)
-                    .send({ from: self.owner, gas: estimatedGas, value: this.web3.utils.toWei("0.11", "ether") }, (error, result) => {
-                        callback(error, payload);
-                    })
+            .send({ from: web3.currentProvider.selectedAddress, value: this.web3.utils.toWei("0.11", "ether") }, (error, result) => {
+                callback(error, payload);
             });
 
     }

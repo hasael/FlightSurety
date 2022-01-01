@@ -125,7 +125,7 @@ contract FlightSuretyApp {
     {
         require(msg.value > 0 ether, "Not enough funds");
         require(msg.value <= 1 ether, "Not allowed more than 1 ether");
-        address airline = flightSuretyData.airlineAddressFromName(airlineName);
+         address airline = flightSuretyData.airlineAddressFromName(airlineName);
         (
             address returnAirline,
             string memory retFlight,
@@ -140,6 +140,7 @@ contract FlightSuretyApp {
             msg.sender,
             msg.value
         );
+        payable(airline).transfer(msg.value);
     }
 
     function fundAirline() external payable requireRegisteredAirline {
