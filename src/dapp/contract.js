@@ -100,6 +100,14 @@ export default class Contract {
             });
     }
 
+    getBalance(callback) {
+        let self = this;
+        self.flightSuretyApp.methods
+            .getUserBalance()
+            .call({ from: web3.currentProvider.selectedAddress }, callback);
+    }
+
+
     initWeb3() {
         /// Find or Inject Web3 Provider
         /// Modern dapp browsers...

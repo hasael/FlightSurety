@@ -209,7 +209,12 @@ contract FlightSuretyData is FlightSuretyDataContract {
         flights[key].airline = flightAirline;
 
         bytes32 airlineKey = getAirlineKey(flightAirline);
-        flightLists.push(FlightStatusCodes.FlightInfo(flight, registeredAirlines[airlineKey].name));
+        flightLists.push(
+            FlightStatusCodes.FlightInfo(
+                flight,
+                registeredAirlines[airlineKey].name
+            )
+        );
     }
 
     function updateFlightStatus(
@@ -293,9 +298,16 @@ contract FlightSuretyData is FlightSuretyDataContract {
      *
      */
     function withdrawUserBalance(uint256 amount) external {
-        require(amount <= usersBalance[msg.sender], "Requested amount higher than balance");
+        require(
+            amount <= usersBalance[msg.sender],
+            "Requested amount higher than balance"
+        );
         require(amount > 0, "Request amount should be not zero");
         usersBalance[msg.sender] = usersBalance[msg.sender] - amount;
+    }
+
+    function getUserBalance() external view returns (uint256 amount) {
+        return usersBalance[msg.sender];
     }
 
     function addAirlineFunds(address airline, uint256 amount) external {
