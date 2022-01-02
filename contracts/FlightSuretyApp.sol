@@ -226,7 +226,7 @@ contract FlightSuretyApp {
     function getUserBalance() external view returns (uint256 amount) {
         return flightSuretyData.getUserBalance();
     }
-    
+
     // Generate a request for oracles to fetch flight information
     function fetchFlightStatus(
         string calldata airlineName,

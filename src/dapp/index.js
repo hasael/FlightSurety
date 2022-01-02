@@ -78,6 +78,12 @@ import './flightsurety.css';
     });
 
     // Read transaction
+    contract.getFlights((error, result) => {
+        console.log(error, result);
+        displayFlights(result);
+    });
+
+    // Read transaction
     contract.getBalance((error, result) => {
         console.log('Balance: ' + result);
         let displayDiv = DOM.elid("balance-value");
