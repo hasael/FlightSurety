@@ -320,6 +320,11 @@ contract FlightSuretyApp {
         oracles[msg.sender] = Oracle({isRegistered: true, indexes: indexes});
     }
 
+    function getOracleIndexes() external view returns (uint8[3] memory) {
+        require(oracles[msg.sender].isRegistered, "Oracle not registered");
+        return oracles[msg.sender].indexes;
+    }
+
     function getMyIndexes() external view returns (uint8[3] memory) {
         require(
             oracles[msg.sender].isRegistered,
