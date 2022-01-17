@@ -144,8 +144,13 @@ contract FlightSuretyApp {
     }
 
     function fundAirline() external payable requireRegisteredAirline {
-        require(msg.value == 10 ether, "10 ether required to fund an airline");
+        require(
+            msg.value == AIRLINE_FEE,
+            "required airline fees fund an airline"
+        );
+
         flightSuretyData.setAirlineAsFunded(msg.sender);
+        payable(contractOwner).transfer(msg.value);
     }
 
     /**
@@ -260,6 +265,9 @@ contract FlightSuretyApp {
 
     // Fee to be paid when registering oracle
     uint256 public constant REGISTRATION_FEE = 1 ether;
+
+    // Fee to be paid when funding ariline
+    uint256 public constant AIRLINE_FEE = 10 ether;
 
     // Number of oracles that must respond for valid status
     uint256 private constant MIN_RESPONSES = 3;

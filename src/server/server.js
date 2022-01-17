@@ -25,7 +25,8 @@ function registerOracle(account) {
       oracles.set(account, result);
       console.log(oracles);
     } else {
-      flightSuretyApp.methods.registerOracle().send({ from: account, value: web3.utils.toWei("1", "ether"), gas: 200000 })
+      let fee = await config.flightSuretyApp.REGISTRATION_FEE.call();
+      flightSuretyApp.methods.registerOracle().send({ from: account, value: fee, gas: 200000 })
         .then(result => {
           console.log('Register Oracle:  ' + result);
           flightSuretyApp.methods.getOracleIndexes().call({ from: account })
