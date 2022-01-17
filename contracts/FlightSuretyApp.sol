@@ -154,7 +154,7 @@ contract FlightSuretyApp {
      */
     function registerAirline(address airline, string calldata name)
         external
-        requireRegisteredAirline
+        requireFundedAirline
         notExistingAirline(airline)
         returns (bool success, uint256 votes)
     {

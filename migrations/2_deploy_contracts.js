@@ -18,6 +18,7 @@ module.exports = function (deployer) {
                             appAddress: FlightSuretyApp.address
                         }
                     }
+                    dataContract.authorizeCaller(FlightSuretyApp.address);
                     fs.writeFileSync(__dirname + '/../src/dapp/config.json', JSON.stringify(config, null, '\t'), 'utf-8');
                     fs.writeFileSync(__dirname + '/../src/server/config.json', JSON.stringify(config, null, '\t'), 'utf-8');
                 });

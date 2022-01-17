@@ -12,6 +12,7 @@ contract FlightSuretyData is FlightSuretyDataContract {
     /********************************************************************************************/
 
     address private contractOwner; // Account used to deploy contract
+    address private authorizedCaller;
     bool private operational = true; // Blocks all state changes throughout the contract if false
     // Flight status codees
     mapping(address => uint256) private usersBalance;
@@ -55,8 +56,8 @@ contract FlightSuretyData is FlightSuretyDataContract {
      */
     constructor(address firstAirline, string memory airlineName) {
         addAirline(firstAirline, airlineName);
-        setAirlineAsFundedInternal(firstAirline);
         contractOwner = msg.sender;
+        authorizedCaller = msg.sender;
     }
 
     /********************************************************************************************/
@@ -82,6 +83,13 @@ contract FlightSuretyData is FlightSuretyDataContract {
     modifier requireContractOwner() {
         require(msg.sender == contractOwner, "Caller is not contract owner");
         _;
+    }
+    modifier requireAuthorizedCaller() {
+        require(
+            msg.sender == authorizedCaller,
+            "Caller is not authorized"
+        );
+        _; // All modifiers require an "_" which indicates where the function body will be added
     }
 
     /********************************************************************************************/
@@ -119,8 +127,13 @@ contract FlightSuretyData is FlightSuretyDataContract {
         addAirline(airline, name);
     }
 
+    function authorizeCaller(address caller) external requireContractOwner {
+        authorizedCaller = caller;
+    }
+
     function addAirlineRegisterVote(address airline, address requester)
         external
+        requireAuthorizedCaller
     {
         bytes32 key = getAirlineKey(airline);
         bytes32 voteHistoryKey = keccak256(
@@ -133,6 +146,7 @@ contract FlightSuretyData is FlightSuretyDataContract {
     function hasAlreadyVoted(address airline, address requester)
         external
         view
+        requireAuthorizedCaller
         returns (bool)
     {
         bytes32 voteHistoryKey = keccak256(
@@ -144,6 +158,7 @@ contract FlightSuretyData is FlightSuretyDataContract {
     function getAirlineRegisterVote(address airline)
         external
         view
+        requireAuthorizedCaller
         returns (uint128)
     {
         bytes32 key = getAirlineKey(airline);
@@ -161,12 +176,22 @@ contract FlightSuretyData is FlightSuretyDataContract {
         airlineCount++;
     }
 
-    function isAirlineRegistered(address airline) external view returns (bool) {
+    function isAirlineRegistered(address airline)
+        external
+        view
+        requireAuthorizedCaller
+        returns (bool)
+    {
         bytes32 key = getAirlineKey(airline);
         return registeredAirlines[key].airlineAddress != address(0);
     }
 
-    function isAirlineFunded(address airline) external view returns (bool) {
+    function isAirlineFunded(address airline)
+        external
+        view
+        requireAuthorizedCaller
+        returns (bool)
+    {
         bytes32 key = getAirlineKey(airline);
         Airline memory foundAirline = registeredAirlines[key];
         return
@@ -174,7 +199,10 @@ contract FlightSuretyData is FlightSuretyDataContract {
             foundAirline.hasPaidFunds == true;
     }
 
-    function setAirlineAsFunded(address airline) external {
+    function setAirlineAsFunded(address airline)
+        external
+        requireAuthorizedCaller
+    {
         setAirlineAsFundedInternal(airline);
     }
 
@@ -187,6 +215,7 @@ contract FlightSuretyData is FlightSuretyDataContract {
     function airlineAddressFromName(string calldata name)
         external
         view
+        requireAuthorizedCaller
         returns (address)
     {
         return airlinesNamestoAddress[name];
@@ -200,7 +229,7 @@ contract FlightSuretyData is FlightSuretyDataContract {
         address flightAirline,
         string calldata flight,
         uint256 timestamp
-    ) external {
+    ) external requireAuthorizedCaller {
         // Generate a unique key for storing the flight
         bytes32 key = getFlightKey(flightAirline, flight);
         flights[key].isRegistered = true;
@@ -222,7 +251,7 @@ contract FlightSuretyData is FlightSuretyDataContract {
         string calldata flight,
         uint256 timestamp,
         uint8 statusCode
-    ) external {
+    ) external requireAuthorizedCaller {
         bytes32 key = getFlightKey(airline, flight);
         flights[key].statusCode = statusCode;
         flights[key].updatedTimestamp = timestamp;
@@ -231,6 +260,7 @@ contract FlightSuretyData is FlightSuretyDataContract {
     function getFlight(address airline, string calldata flight)
         external
         view
+        requireAuthorizedCaller
         returns (
             address returnAirline,
             string calldata retFlight,
@@ -251,6 +281,7 @@ contract FlightSuretyData is FlightSuretyDataContract {
     function getFlightsList()
         external
         view
+        requireAuthorizedCaller
         returns (FlightStatusCodes.FlightInfo[] memory)
     {
         return flightLists;
@@ -265,7 +296,7 @@ contract FlightSuretyData is FlightSuretyDataContract {
         address airline,
         address user,
         uint256 amount
-    ) external {
+    ) external requireAuthorizedCaller {
         bytes32 key = getInsuranceKey(airline, flight);
         insuranceUsers[key].push(Insurance(user, amount, 0));
     }
@@ -273,7 +304,10 @@ contract FlightSuretyData is FlightSuretyDataContract {
     /**
      *  @dev Credits payouts to insurees
      */
-    function creditInsurees(address airline, string calldata flight) external {
+    function creditInsurees(address airline, string calldata flight)
+        external
+        requireAuthorizedCaller
+    {
         bytes32 key = getInsuranceKey(airline, flight);
         Insurance[] memory userInsurances = insuranceUsers[key];
 
@@ -297,7 +331,10 @@ contract FlightSuretyData is FlightSuretyDataContract {
      *  @dev Transfers eligible payout funds to insuree
      *
      */
-    function withdrawUserBalance(uint256 amount) external {
+    function withdrawUserBalance(uint256 amount)
+        external
+        requireAuthorizedCaller
+    {
         require(
             amount <= usersBalance[msg.sender],
             "Requested amount higher than balance"
@@ -306,15 +343,28 @@ contract FlightSuretyData is FlightSuretyDataContract {
         usersBalance[msg.sender] = usersBalance[msg.sender] - amount;
     }
 
-    function getUserBalance() external view returns (uint256 amount) {
+    function getUserBalance()
+        external
+        view
+        requireAuthorizedCaller
+        returns (uint256 amount)
+    {
         return usersBalance[msg.sender];
     }
 
-    function addAirlineFunds(address airline, uint256 amount) external {
+    function addAirlineFunds(address airline, uint256 amount)
+        external
+        requireAuthorizedCaller
+    {
         airlineFunds[airline] += amount;
     }
 
-    function getAirlineFunds(address airline) external view returns (uint256) {
+    function getAirlineFunds(address airline)
+        external
+        view
+        requireAuthorizedCaller
+        returns (uint256)
+    {
         return airlineFunds[airline];
     }
 
