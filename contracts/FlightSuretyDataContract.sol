@@ -66,7 +66,7 @@ interface FlightSuretyDataContract {
         view
         returns (FlightStatusCodes.FlightInfo[] memory);
 
-    function withdrawUserBalance(uint256 amount) external;
+    function withdrawUserBalance(uint256 amount, address user) external;
 
-    function getUserBalance() external view returns (uint256 amount);
+    function getUserBalance(address user) external view returns (uint256 amount);
 }

@@ -224,12 +224,12 @@ contract FlightSuretyApp {
     }
 
     function withdrawUserBalance(uint256 amount) external {
-        flightSuretyData.withdrawUserBalance(amount);
+        flightSuretyData.withdrawUserBalance(amount, msg.sender);
         payable(msg.sender).transfer(amount);
     }
 
     function getUserBalance() external view returns (uint256 amount) {
-        return flightSuretyData.getUserBalance();
+        return flightSuretyData.getUserBalance(msg.sender);
     }
 
     // Generate a request for oracles to fetch flight information
@@ -252,6 +252,9 @@ contract FlightSuretyApp {
         bytes32 key = keccak256(
             abi.encodePacked(index, airline, flight, timestamp)
         );
+
+        bytes32 flightKey = keccak256(abi.encodePacked(airline, flight));
+        lastIndexesUsed[flightKey] = index;
         oracleResponses[key].requester = msg.sender;
         oracleResponses[key].isOpen = true;
 
@@ -268,6 +271,8 @@ contract FlightSuretyApp {
 
     // Fee to be paid when funding ariline
     uint256 public constant AIRLINE_FEE = 10 ether;
+
+    uint256 public constant MAXIMUM_INSURANCE_FEE = 1 ether;
 
     // Number of oracles that must respond for valid status
     uint256 private constant MIN_RESPONSES = 3;
@@ -293,6 +298,7 @@ contract FlightSuretyApp {
     // Key = hash(index, flight, timestamp)
     mapping(bytes32 => ResponseInfo) private oracleResponses;
 
+    mapping(bytes32 => uint8) private lastIndexesUsed;
     // Event fired each time an oracle submits a response
     event FlightStatusInfo(
         address airline,
@@ -340,6 +346,15 @@ contract FlightSuretyApp {
         );
 
         return oracles[msg.sender].indexes;
+    }
+
+    function getLastFlightRequestIndex(address airline, string memory flight)
+        external
+        view
+        returns (uint8)
+    {
+        bytes32 flightKey = keccak256(abi.encodePacked(airline, flight));
+        return lastIndexesUsed[flightKey];
     }
 
     // Called by oracle when a response is available to an outstanding request

@@ -317,12 +317,9 @@ contract FlightSuretyData is FlightSuretyDataContract {
             uint256 insuranceAmount = userInsurances[i].paidAmount;
             if (reimbursedAmount == 0) {
                 uint256 credit = (insuranceAmount * 3) / 2;
-                userInsurances[i] = Insurance(
-                    insuranceUser,
-                    insuranceAmount,
-                    reimbursedAmount
-                );
+     
                 usersBalance[insuranceUser] += credit;
+                insuranceUsers[key][i] = Insurance(insuranceUser, insuranceAmount, credit);
             }
         }
     }
@@ -331,25 +328,25 @@ contract FlightSuretyData is FlightSuretyDataContract {
      *  @dev Transfers eligible payout funds to insuree
      *
      */
-    function withdrawUserBalance(uint256 amount)
+    function withdrawUserBalance(uint256 amount, address user)
         external
         requireAuthorizedCaller
     {
         require(
-            amount <= usersBalance[msg.sender],
+            amount <= usersBalance[user],
             "Requested amount higher than balance"
         );
         require(amount > 0, "Request amount should be not zero");
-        usersBalance[msg.sender] = usersBalance[msg.sender] - amount;
+        usersBalance[user] = usersBalance[user] - amount;
     }
 
-    function getUserBalance()
+    function getUserBalance(address user)
         external
         view
         requireAuthorizedCaller
         returns (uint256 amount)
     {
-        return usersBalance[msg.sender];
+        return usersBalance[user];
     }
 
     function addAirlineFunds(address airline, uint256 amount)
