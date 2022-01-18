@@ -157,7 +157,7 @@ contract FlightSuretyApp {
      * @dev Add an airline to the registration queue
      *
      */
-    function registerAirline(address airline, string calldata name)
+    function registerAirline(address airline, string memory name)
         external
         requireFundedAirline
         notExistingAirline(airline)

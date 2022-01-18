@@ -1,6 +1,7 @@
 
 var Test = require('../config/testConfig.js');
 var BigNumber = require('bignumber.js');
+const { web } = require('webpack');
 
 contract('Flight Surety Tests', async (accounts) => {
 
@@ -68,25 +69,51 @@ contract('Flight Surety Tests', async (accounts) => {
 
     });
 
+    it('(airline) can register an Airline using registerAirline() if it is funded and less than 4 airlines', async () => {
+
+        // ARRANGE
+        let newAirline = accounts[3];
+
+        let funded = await config.flightSuretyData.isAirlineFunded.call(config.firstAirline, { from: config.flightSuretyApp.address });
+        let fee = await config.flightSuretyApp.AIRLINE_FEE.call();
+
+        //Fund the first airline
+        if (!funded) {
+            await config.flightSuretyApp.fundAirline({ from: config.firstAirline, value: fee });
+        }
+   
+        // ACT
+        await config.flightSuretyApp.registerAirline(newAirline, 'new1', { from: config.firstAirline });
+
+        let result = await config.flightSuretyData.isAirlineRegistered.call(newAirline, { from: config.flightSuretyApp.address });
+
+        // ASSERT
+        assert.equal(result, true, "Airline should be able to register another airline if it hasn't provided funding");
+
+    });
+
     it('(airline) cannot register an Airline using registerAirline() if it is not funded', async () => {
 
         // ARRANGE
-        let newAirline = accounts[2];
+        let newAirline = accounts[4];
+        let registeredNotFundedAirline = accounts[3];
 
         // ACT
         try {
-            await config.flightSuretyApp.registerAirline(newAirline, { from: config.firstAirline });
+            await config.flightSuretyApp.registerAirline(newAirline, 'new', { from: registeredNotFundedAirline });
         }
         catch (e) {
 
         }
- 
+
         let result = await config.flightSuretyData.isAirlineRegistered.call(newAirline, { from: config.flightSuretyApp.address });
 
         // ASSERT
         assert.equal(result, false, "Airline should not be able to register another airline if it hasn't provided funding");
 
     });
+
+   
 
 
 });

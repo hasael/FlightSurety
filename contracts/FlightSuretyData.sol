@@ -193,10 +193,9 @@ contract FlightSuretyData is FlightSuretyDataContract {
         returns (bool)
     {
         bytes32 key = getAirlineKey(airline);
-        Airline memory foundAirline = registeredAirlines[key];
         return
-            foundAirline.airlineAddress != address(0) &&
-            foundAirline.hasPaidFunds == true;
+            registeredAirlines[key].airlineAddress != address(0) &&
+            registeredAirlines[key].hasPaidFunds == true;
     }
 
     function setAirlineAsFunded(address airline)
