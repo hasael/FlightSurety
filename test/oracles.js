@@ -1,5 +1,6 @@
 
 var Test = require('../config/testConfig.js');
+
 //var BigNumber = require('bignumber.js');
 
 contract('Oracles', async (accounts) => {
@@ -34,7 +35,8 @@ contract('Oracles', async (accounts) => {
     }
   });
 
-  it('can request flight status', async () => {
+  //NOTE: This test is non deterministic due to the randomness of indexes assigned. But it should showcase the desired behaviour
+  it('passenger can purchase insurance and are refunded in case of delayed flight', async () => {
 
     // ARRANGE
     let flight = 'ND1309'; // Course number
@@ -52,7 +54,7 @@ contract('Oracles', async (accounts) => {
 
     await config.flightSuretyData.isAirlineFunded.call(config.firstAirline, { from: config.flightSuretyApp.address });
 
-    //Register flight
+    //Register new flight
     await config.flightSuretyApp.registerFlight(config.firstAirline, flight, timestamp, { from: config.firstAirline });
 
 
@@ -64,6 +66,9 @@ contract('Oracles', async (accounts) => {
 
     console.log("index: " + index);
     await config.flightSuretyApp.buyInsurance(config.airlineName, flight, { from: accounts[30], value: insuranceFee });
+
+    let accountBalance = await web3.eth.getBalance(accounts[30]);
+    console.log('Balance: ' + accountBalance);
 
     // ACT
     // Since the Index assigned to each test account is opaque by design
@@ -99,55 +104,65 @@ contract('Oracles', async (accounts) => {
       assert.equal(userBalance.toString(), (insuranceFee * 1.5).toString(), "Reimbursed amount must be at 50% of the invested value");
     }
 
+
+    //User can withdraw their balance
+    await config.flightSuretyApp.withdrawUserBalance(userBalance, { from: accounts[30] });
+    let newAccountBalance = await web3.eth.getBalance(accounts[30]);
+
+    console.log('New balance: ' + newAccountBalance.toString());
+
+    assert.equal(newAccountBalance > accountBalance, true, 'User balance after withdrawal should reflect their new balance');
+
   });
-  it('refund user in case of delayed flight', async () => {
-    /*
-        // ARRANGE
-        let flight = 'ND1309'; // Course number
-        let timestamp = Math.floor(Date.now() / 1000);
-    
-    
-        let fee = await config.flightSuretyApp.AIRLINE_FEE.call();
-        let funded = await config.flightSuretyData.isAirlineFunded.call(config.firstAirline, { from: config.flightSuretyApp.address });
-    
-        //Fund the first airline
-        if (!funded) {
-          await config.flightSuretyApp.fundAirline({ from: config.firstAirline, value: fee });
+
+  it('can request flight status', async () => {
+
+    // ARRANGE
+    let flight = 'ND1309'; // Course number
+    let timestamp = Math.floor(Date.now() / 1000);
+
+
+    let fee = await config.flightSuretyApp.AIRLINE_FEE.call();
+    let funded = await config.flightSuretyData.isAirlineFunded.call(config.firstAirline, { from: config.flightSuretyApp.address });
+
+    //Fund the first airline
+    if (!funded) {
+      await config.flightSuretyApp.fundAirline({ from: config.firstAirline, value: fee });
+    }
+
+    await config.flightSuretyData.isAirlineFunded.call(config.firstAirline, { from: config.flightSuretyApp.address });
+
+    //Register flight
+    await config.flightSuretyApp.registerFlight(config.firstAirline, flight, timestamp, { from: config.firstAirline });
+
+    // Submit a request for oracles to get status information for a flight
+    await config.flightSuretyApp.fetchFlightStatus(config.airlineName, flight, timestamp);
+    // ACT
+    // Since the Index assigned to each test account is opaque by design
+    // loop through all the accounts and for each account, all its Indexes (indices?)
+    // and submit a response. The contract will reject a submission if it was
+    // not requested so while sub-optimal, it's a good test of that feature
+    for (let a = 1; a < TEST_ORACLES_COUNT; a++) {
+
+      // Get oracle information
+      let oracleIndexes = await config.flightSuretyApp.getMyIndexes.call({ from: accounts[a] });
+      console.log("oracle indexes: " + oracleIndexes);
+      for (let idx = 0; idx < 3; idx++) {
+
+        try {
+          // Submit a response...it will only be accepted if there is an Index match
+          await config.flightSuretyApp.submitOracleResponse(oracleIndexes[idx], config.firstAirline, flight, timestamp, STATUS_CODE_ON_TIME, { from: accounts[a] });
+          console.log('Submitted correctly for: ' + oracleIndexes[idx]);
         }
-    
-        await config.flightSuretyData.isAirlineFunded.call(config.firstAirline, { from: config.flightSuretyApp.address });
-    
-        //Register flight
-        await config.flightSuretyApp.registerFlight(config.firstAirline, flight, timestamp, { from: config.firstAirline });
-    
-        // Submit a request for oracles to get status information for a flight
-        await config.flightSuretyApp.fetchFlightStatus(config.airlineName, flight, timestamp);
-        // ACT
-        // Since the Index assigned to each test account is opaque by design
-        // loop through all the accounts and for each account, all its Indexes (indices?)
-        // and submit a response. The contract will reject a submission if it was
-        // not requested so while sub-optimal, it's a good test of that feature
-        for (let a = 1; a < TEST_ORACLES_COUNT; a++) {
-    
-          // Get oracle information
-          let oracleIndexes = await config.flightSuretyApp.getMyIndexes.call({ from: accounts[a] });
-          console.log("oracle indexes: " + oracleIndexes);
-          for (let idx = 0; idx < 3; idx++) {
-    
-            try {
-              // Submit a response...it will only be accepted if there is an Index match
-              await config.flightSuretyApp.submitOracleResponse(oracleIndexes[idx], config.firstAirline, flight, timestamp, STATUS_CODE_ON_TIME, { from: accounts[a] });
-              console.log('Submitted correctly for: ' + oracleIndexes[idx]);
-            }
-            catch (e) {
-              // Enable this when debugging
-              console.log('\nError', idx, oracleIndexes[idx].toNumber(), flight, timestamp);
-            }
-    
-          }
+        catch (e) {
+          // Enable this when debugging
+          console.log('\nError', idx, oracleIndexes[idx].toNumber(), flight, timestamp);
         }
-    
-    */
+
+      }
+    }
+
+
   });
 
 

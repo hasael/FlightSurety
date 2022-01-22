@@ -331,11 +331,6 @@ contract FlightSuretyData is FlightSuretyDataContract {
         external
         requireAuthorizedCaller
     {
-        require(
-            amount <= usersBalance[user],
-            "Requested amount higher than balance"
-        );
-        require(amount > 0, "Request amount should be not zero");
         usersBalance[user] = usersBalance[user] - amount;
     }
 

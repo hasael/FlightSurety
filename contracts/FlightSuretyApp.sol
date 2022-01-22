@@ -224,6 +224,11 @@ contract FlightSuretyApp {
     }
 
     function withdrawUserBalance(uint256 amount) external {
+        require(
+            amount <= flightSuretyData.getUserBalance(msg.sender),
+            "Requested amount higher than balance"
+        );
+        require(amount > 0, "Request amount should be not zero");
         flightSuretyData.withdrawUserBalance(amount, msg.sender);
         payable(msg.sender).transfer(amount);
     }

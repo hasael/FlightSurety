@@ -81,7 +81,7 @@ contract('Flight Surety Tests', async (accounts) => {
         if (!funded) {
             await config.flightSuretyApp.fundAirline({ from: config.firstAirline, value: fee });
         }
-   
+
         // ACT
         await config.flightSuretyApp.registerAirline(newAirline, 'new1', { from: config.firstAirline });
 
@@ -129,7 +129,7 @@ contract('Flight Surety Tests', async (accounts) => {
         if (!funded) {
             await config.flightSuretyApp.fundAirline({ from: config.firstAirline, value: fee });
         }
-   
+
         // ACT
         await config.flightSuretyApp.registerAirline(newAirline1, 'new1', { from: config.firstAirline });
         await config.flightSuretyApp.fundAirline({ from: newAirline1, value: fee });
