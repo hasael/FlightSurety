@@ -344,6 +344,10 @@ contract FlightSuretyApp {
         return oracles[msg.sender].indexes;
     }
 
+    function isOracleRegistered() external view returns (bool) {
+        return oracles[msg.sender].isRegistered;
+    }
+
     function getMyIndexes() external view returns (uint8[3] memory) {
         require(
             oracles[msg.sender].isRegistered,
