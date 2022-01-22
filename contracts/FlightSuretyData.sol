@@ -139,7 +139,7 @@ contract FlightSuretyData is FlightSuretyDataContract {
         bytes32 voteHistoryKey = keccak256(
             abi.encodePacked(airline, requester)
         );
-        airlineRegisterVotes[key] += airlineRegisterVotes[key];
+        airlineRegisterVotes[key] = airlineRegisterVotes[key] + 1;
         airlineRegisterVotesHistory[voteHistoryKey] = true;
     }
 
@@ -173,7 +173,6 @@ contract FlightSuretyData is FlightSuretyDataContract {
         bytes32 key = getAirlineKey(airline);
         registeredAirlines[key] = Airline(airline, name, false);
         airlinesNamestoAddress[name] = airline;
-        airlineCount++;
     }
 
     function isAirlineRegistered(address airline)
@@ -209,6 +208,7 @@ contract FlightSuretyData is FlightSuretyDataContract {
         bytes32 key = getAirlineKey(airline);
         Airline memory foundAirline = registeredAirlines[key];
         registeredAirlines[key] = Airline(airline, foundAirline.name, true);
+        airlineCount++;
     }
 
     function airlineAddressFromName(string calldata name)

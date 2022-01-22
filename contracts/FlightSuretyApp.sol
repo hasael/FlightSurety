@@ -174,7 +174,7 @@ contract FlightSuretyApp {
             uint128 currentVote = flightSuretyData.getAirlineRegisterVote(
                 airline
             );
-            if (100 * (currentVote / airlineCount) >= 50) {
+            if (((100 * currentVote) / airlineCount) >= 50) {
                 flightSuretyData.registerAirline(airline, name);
                 return (true, currentVote);
             } else {

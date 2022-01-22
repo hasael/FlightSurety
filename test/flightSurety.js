@@ -113,7 +113,51 @@ contract('Flight Surety Tests', async (accounts) => {
 
     });
 
+    it('(airline) can register an Airline using registerAirline() only with 50% or more of the votes', async () => {
+
+        // ARRANGE
+        let newAirline1 = accounts[4];
+        let newAirline2 = accounts[5];
+        let newAirline3 = accounts[6];
+        let newAirline4 = accounts[7];
+        let newAirline5 = accounts[8];
+
+        let funded = await config.flightSuretyData.isAirlineFunded.call(config.firstAirline, { from: config.flightSuretyApp.address });
+        let fee = await config.flightSuretyApp.AIRLINE_FEE.call();
+
+        //Fund the first airline
+        if (!funded) {
+            await config.flightSuretyApp.fundAirline({ from: config.firstAirline, value: fee });
+        }
    
+        // ACT
+        await config.flightSuretyApp.registerAirline(newAirline1, 'new1', { from: config.firstAirline });
+        await config.flightSuretyApp.fundAirline({ from: newAirline1, value: fee });
+        await config.flightSuretyApp.registerAirline(newAirline2, 'new2', { from: config.firstAirline });
+        await config.flightSuretyApp.fundAirline({ from: newAirline2, value: fee });
+        await config.flightSuretyApp.registerAirline(newAirline3, 'new3', { from: config.firstAirline });
+        await config.flightSuretyApp.fundAirline({ from: newAirline3, value: fee });
+        await config.flightSuretyApp.registerAirline(newAirline4, 'new4', { from: config.firstAirline });
+        await config.flightSuretyApp.fundAirline({ from: newAirline3, value: fee });
+
+        await config.flightSuretyApp.registerAirline(newAirline5, 'new5', { from: config.firstAirline });
+
+        let result = await config.flightSuretyData.isAirlineRegistered.call(newAirline5, { from: config.flightSuretyApp.address });
+
+        // ASSERT
+        assert.equal(result, false, "Airline should not be able to register immediately when more than 4 airlines");
+
+        //Other 2 airlines vote as well
+        await config.flightSuretyApp.registerAirline(newAirline5, 'new5', { from: newAirline1 });
+        await config.flightSuretyApp.registerAirline(newAirline5, 'new5', { from: newAirline2 });
+
+        let voteResult = await config.flightSuretyData.isAirlineRegistered.call(newAirline5, { from: config.flightSuretyApp.address });
+
+        // ASSERT
+        assert.equal(voteResult, true, "Airline should be registered when more than 50% voted for it");
+
+    });
+
 
 
 });
