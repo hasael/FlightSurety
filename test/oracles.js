@@ -41,6 +41,7 @@ contract('Oracles', async (accounts) => {
     // ARRANGE
     let flight = 'ND1309'; // Course number
     let timestamp = Math.floor(Date.now() / 1000);
+    const passenger = accounts[30];
 
 
     let fee = await config.flightSuretyApp.AIRLINE_FEE.call();
@@ -65,9 +66,9 @@ contract('Oracles', async (accounts) => {
     let index = await config.flightSuretyApp.getLastFlightRequestIndex.call(config.firstAirline, flight, { from: accounts[0] });
 
     console.log("index: " + index);
-    await config.flightSuretyApp.buyInsurance(config.airlineName, flight, { from: accounts[30], value: insuranceFee });
+    await config.flightSuretyApp.buyInsurance(config.airlineName, flight, { from: passenger, value: insuranceFee });
 
-    let accountBalance = await web3.eth.getBalance(accounts[30]);
+    let accountBalance = await web3.eth.getBalance(passenger);
     console.log('Balance: ' + accountBalance);
 
     // ACT
@@ -97,7 +98,7 @@ contract('Oracles', async (accounts) => {
       }
     }
 
-    let userBalance = await config.flightSuretyApp.getUserBalance.call({ from: accounts[30] });
+    let userBalance = await config.flightSuretyApp.getUserBalance.call({ from: passenger });
     console.log(userBalance.toString());
     console.log('submitted: ' + enteredCount);
     if (enteredCount >= 3) {
@@ -106,8 +107,8 @@ contract('Oracles', async (accounts) => {
 
 
     //User can withdraw their balance
-    await config.flightSuretyApp.withdrawUserBalance(userBalance, { from: accounts[30] });
-    let newAccountBalance = await web3.eth.getBalance(accounts[30]);
+    await config.flightSuretyApp.withdrawUserBalance(userBalance, { from: passenger });
+    let newAccountBalance = await web3.eth.getBalance(passenger);
 
     console.log('New balance: ' + newAccountBalance.toString());
 

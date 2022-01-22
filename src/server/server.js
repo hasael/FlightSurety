@@ -25,11 +25,11 @@ web3.eth.getAccounts().then(accounts => {
 });
 
 function registerOracle(account) {
-  flightSuretyApp.methods.isOracleRegistered().call({ from: account , gas: 400000 }, (error, result) => {
+  flightSuretyApp.methods.isOracleRegistered().call({ from: account  }, (error, result) => {
     if (error) console.error(error);
     if (result) {
       console.log('Pre registered oracle : ' + account);
-      flightSuretyApp.methods.getOracleIndexes().call({ from: account, gas: 400000  })
+      flightSuretyApp.methods.getOracleIndexes().call({ from: account  })
         .then(indexes => {
           oracles.set(account, indexes);
           console.log(oracles);
@@ -37,10 +37,10 @@ function registerOracle(account) {
       oracles.set(account, result);
       console.log(oracles);
     } else {
-      flightSuretyApp.methods.registerOracle().send({ from: account, value: ORACLE_FEE, gas: 400000 })
+      flightSuretyApp.methods.registerOracle().send({ from: account, value: ORACLE_FEE })
         .then(result => {
           console.log('Register Oracle:  ' + result);
-          flightSuretyApp.methods.getOracleIndexes().call({ from: account, gas: 400000  })
+          flightSuretyApp.methods.getOracleIndexes().call({ from: account  })
             .then(indexes => {
               oracles.set(account, indexes);
               console.log(oracles);
