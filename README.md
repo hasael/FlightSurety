@@ -17,6 +17,11 @@ To run truffle tests:
 
 `truffle test ./test/flightSurety.js`
 `truffle test ./test/oracles.js`
+NOTE: Due to an issue on local ganache, if I run 'truffle test' I get a nonce error (also from the starting code), running tests from files separately works fine.
+
+## Test input values
+
+The UI uses Airline name whenever 'Airline' value is requested.
 
 To use the dapp:
 

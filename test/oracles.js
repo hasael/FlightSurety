@@ -1,8 +1,6 @@
 
 var Test = require('../config/testConfig.js');
 
-//var BigNumber = require('bignumber.js');
-
 contract('Oracles', async (accounts) => {
 
   const TEST_ORACLES_COUNT = 20;

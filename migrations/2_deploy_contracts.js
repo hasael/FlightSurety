@@ -4,7 +4,7 @@ const fs = require('fs');
 
 module.exports = function (deployer) {
 
-    let firstAirline = '0xC0d1dE95F54BB852ef3dCCAD0A5af486bA0879B1';
+    let firstAirline = '0xaa2f9FC58c72a67FCB56d96cD15d444D885d1d45';
     let firstAirlineName = 'Acme airline';
     deployer.deploy(FlightSuretyData, firstAirline, firstAirlineName)
         .then(dataContract => {
